@@ -5,6 +5,7 @@ module.exports = {
   },
   plugins: [
     '@snowpack/plugin-svelte',
-    '@snowpack/plugin-typescript'
+    '@snowpack/plugin-typescript',
+    '@snowpack/plugin-sass',
   ]
 }
