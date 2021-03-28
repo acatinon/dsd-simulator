@@ -1,14 +1,14 @@
 import { writable, derived, Readable, Writable } from "svelte/store";
-import Big from "big.js";
+import BigNumber from "bignumber.js";
 
 export interface DecimalStore extends Writable<number> {
-    asBig(): Readable<Big>
+    asBig(): Readable<BigNumber>
 }
 
 
 export function decimal(init: number): DecimalStore {
 	const store = writable(init);
-    const bigStore = derived(store, $store => new Big($store))
+    const bigStore = derived(store, $store => new BigNumber($store))
 
 	return {
 		subscribe: store.subscribe,

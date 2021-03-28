@@ -26,6 +26,6 @@
     "resolveJsonModule": true,
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
-    "importsNotUsedAsValues": "remove"
+    "importsNotUsedAsValues": "error"
   }
 }

@@ -29,7 +29,7 @@
     <div class="field mr-2">
       <label class="label">TWAP</label>
       <div class="control">
-        <input class="input" type="number" bind:value={$twap} />
+        <input class="input" type="number" min="0" step="0.1" bind:value={$twap} />
       </div>
     </div>
   </form>
