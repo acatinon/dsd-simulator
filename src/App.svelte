@@ -3,6 +3,7 @@
   import { decimal } from "./utils" 
 
   import Expansion from './components/Expansion.svelte';
+  import FormattedDecimalInput from './components/FormattedDecimalInput.svelte';
 
   const twap = decimal(1);
   const totalSupply = decimal(141_593_462);
@@ -23,25 +24,25 @@
     <div class="field mr-2">
       <label class="label">TWAP</label>
       <div class="control">
-        <input class="input" type="number" min="0" step="0.1" bind:value={$twap} />
+        <FormattedDecimalInput store={twap} />
       </div>
     </div>
     <div class="field mr-2">
       <label class="label">Total supply</label>
       <div class="control">
-        <input class="input" type="number"  bind:value={$totalSupply}/>
+        <FormattedDecimalInput store={totalSupply} />
       </div>
     </div>
     <div class="field mr-2">
       <label class="label">Bonded DAO</label>
       <div class="control">
-        <input class="input" type="number"  bind:value={$bondedDao}/>
+        <FormattedDecimalInput store={bondedDao} />
       </div>
     </div>
     <div class="field mr-2">
       <label class="label">Bonded LP</label>
       <div class="control">
-        <input class="input" type="number"  bind:value={$bondedLp}/>
+        <FormattedDecimalInput store={bondedLp} />
       </div>
     </div>
   </form>
