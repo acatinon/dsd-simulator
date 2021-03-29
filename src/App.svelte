@@ -7,8 +7,9 @@
 
   const twap = decimal(1);
   const totalSupply = decimal(141_593_462);
-  const bondedDao = decimal(17_835_130);
+  const bondedDsd = decimal(17_835_130);
   const bondedLp = decimal(3_578_883);
+  const bondedCdsd = decimal(5_000_000);
 
 </script>
 
@@ -34,15 +35,21 @@
       </div>
     </div>
     <div class="field mr-2">
-      <label class="label">Bonded DAO</label>
+      <label class="label">Bonded DSD</label>
       <div class="control">
-        <FormattedDecimalInput store={bondedDao} />
+        <FormattedDecimalInput store={bondedDsd} />
       </div>
     </div>
     <div class="field mr-2">
       <label class="label">Bonded LP</label>
       <div class="control">
         <FormattedDecimalInput store={bondedLp} />
+      </div>
+    </div>
+    <div class="field mr-2">
+      <label class="label">Bonded CDSD</label>
+      <div class="control">
+        <FormattedDecimalInput store={bondedCdsd} />
       </div>
     </div>
   </form>
@@ -59,5 +66,5 @@
     {/if}
   </h2>
 
-  <Expansion twap={twap} totalSupply={totalSupply} bondedDao={bondedDao} bondedLp={bondedLp} />
+  <Expansion twap={twap} totalSupply={totalSupply} bondedDsd={bondedDsd} bondedLp={bondedLp} bondedCdsd={bondedCdsd}/>
 </section>

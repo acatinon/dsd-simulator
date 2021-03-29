@@ -6,6 +6,8 @@
     supplyChangeLimit,
     supplyChangeDivisor,
     oraclePoolRatio,
+    treasuryRatio,
+    cdsdRedemptionRatio,
   } from "../settings";
   import type { DecimalStore } from "../utils";
 
@@ -13,8 +15,9 @@
 
   export let twap: DecimalStore;
   export let totalSupply: DecimalStore;
-  export let bondedDao: DecimalStore;
+  export let bondedDsd: DecimalStore;
   export let bondedLp: DecimalStore;
+  export let bondedCdsd: DecimalStore;
 
   const delta = derived(
     [twap.asBig(), supplyChangeDivisor.asBig(), supplyChangeLimit.asBig()],
@@ -30,12 +33,47 @@
     ([$delta, $totalSupply]) => $delta.multipliedBy($totalSupply)
   );
 
+  const lpRewardAmount = derived(
+    [newSupply, oraclePoolRatio.asBig()],
+    ([$newSupply, $oraclePoolRatio]) =>
+      $newSupply.multipliedBy($oraclePoolRatio)
+  );
+
   const lpRewardRatio = derived(
-    [newSupply, oraclePoolRatio.asBig(), totalSupply.asBig(), bondedLp.asBig()],
-    ([$newSupply, $oraclePoolRatio, $totalSupply, $bondedLp]) =>
+    [lpRewardAmount, bondedLp.asBig()],
+    ([$lpRewardAmount, $bondedLp]) => $lpRewardAmount.dividedBy($bondedLp)
+  );
+
+  const treasuryAmount = derived(
+    [newSupply, treasuryRatio.asBig()],
+    ([$newSupply, $treasuryRatio]) => $newSupply.multipliedBy($treasuryRatio)
+  );
+
+  const cdsdRedeemableAmount = derived(
+    [newSupply, cdsdRedemptionRatio.asBig(), bondedCdsd.asBig()],
+    ([$newSupply, $cdsdRedemptionRatio, $bondedCdsd]) =>
+      BigNumber.min($newSupply.multipliedBy($cdsdRedemptionRatio), $bondedCdsd)
+  );
+
+  const cdsdRedeemableRatio = derived(
+    [cdsdRedeemableAmount, bondedCdsd.asBig()],
+    ([$cdsdRedeemableAmount, $bondedCdsd]) =>
+      $cdsdRedeemableAmount.dividedBy($bondedCdsd)
+  );
+
+  const dsdRedeemableAmount = derived(
+    [newSupply, lpRewardAmount, treasuryAmount, cdsdRedeemableAmount],
+    ([$newSupply, $lpRewardAmount, $treasuryAmount, $cdsdRedeemableAmount]) =>
       $newSupply
-        .multipliedBy($oraclePoolRatio)
-        .dividedBy($bondedLp)
+        .minus($lpRewardAmount)
+        .minus($treasuryAmount)
+        .minus($cdsdRedeemableAmount)
+  );
+
+  const dsdRedeemableRatio = derived(
+    [dsdRedeemableAmount, bondedDsd.asBig()],
+    ([$dsdRedeemableAmount, $bondedCdsd]) =>
+      $dsdRedeemableAmount.dividedBy($bondedCdsd)
   );
 </script>
 
@@ -43,6 +81,13 @@
   The supply will be increased by <FormattedDecimal value={$newSupply} /> DSD.
 </p>
 <p>
-  Returning <FormattedDecimal value={$lpRewardRatio.multipliedBy(100)} />% for bonded LP, and xx% for
-  bonded DAO per epoch.
+  Returning <FormattedDecimal value={$lpRewardRatio.multipliedBy(100)} />% for
+  bonded LP, and <FormattedDecimal
+    value={$dsdRedeemableRatio.multipliedBy(100)}
+  />% for bonded DAO per epoch.
+</p>
+<p>
+  You will be able to redeem <FormattedDecimal
+    value={$cdsdRedeemableRatio.multipliedBy(100)}
+  />% of your bonded CDSD.
 </p>
