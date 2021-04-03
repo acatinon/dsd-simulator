@@ -9,6 +9,7 @@ export interface DecimalStore extends Writable<number> {
 
 export interface Web3Store extends Readable<Web3Provider> {
 	connect(): void;
+	connectIfCachedProvider(): void;
 	disconnect(): void;
 }
 
@@ -25,7 +26,7 @@ export function web3(): Web3Store {
 
 	const web3Modal = new Web3Modal({
 		network: "mainnet",
-		cacheProvider: true,
+		cacheProvider: true, // optional
 		providerOptions
 	});
 
@@ -47,21 +48,29 @@ export function web3(): Web3Store {
 	web3Modal.on("disconnect", (error: { code: number; message: string }) => {
 		update(web3 => {
 			web3.isConnected = false;
+			web3.provider = undefined;
 			web3.chainId = undefined;
 			return web3;
 		});
 	});
 
+	const onConnected = (provider: any): void => {
+		update(web3 => {
+			web3.provider = new ethers.providers.Web3Provider(provider);
+			web3.isConnected = true;
+			return web3;
+		});
+	}
+
 	return {
 		subscribe,
 		connect: () => {
-			web3Modal.connect().then((provider) => {
-				update(web3 => {
-					web3.provider = new ethers.providers.Web3Provider(provider);
-					web3.isConnected = true;
-					return web3;
-				});
-			});
+			web3Modal.connect().then(onConnected);
+		},
+		connectIfCachedProvider: () => {
+			if (web3Modal.cachedProvider) {
+				web3Modal.connect().then(onConnected);
+			}
 		},
 		disconnect: () => {
 			update(web3 => {

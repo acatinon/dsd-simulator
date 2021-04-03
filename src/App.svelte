@@ -11,6 +11,11 @@
   const bondedLp = decimal(3_578_883);
   const bondedCdsd = decimal(5_000_000);
   const web3Provider = web3();
+
+  onMount(async () => {
+    web3Provider.connectIfCachedProvider();
+  });
+
 </script>
 
 <div class="container">
@@ -27,6 +32,9 @@
             ...
           {:then accounts}
             <span class="tag is-primary is-light">{accounts[0]}</span>
+            <span class="icon" on:click={web3Provider.disconnect}>
+              <ion-icon name="log-out-outline"></ion-icon>
+            </span>
           {/await}
         {:else}
           <button class="button is-primary" on:click={web3Provider.connect}>Connect</button>
