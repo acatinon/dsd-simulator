@@ -1,11 +1,6 @@
-import { writable, derived, Readable, Writable } from "svelte/store";
-import BigNumber from "bignumber.js";
+import { writable, Readable } from "svelte/store";
 import Web3Modal from "web3modal";
 import { ethers } from "ethers";
-
-export interface DecimalStore extends Writable<number> {
-	asBig(): Readable<BigNumber>;
-}
 
 export interface Web3Store extends Readable<Web3Provider> {
 	connect(): Promise<ethers.providers.Web3Provider>;
@@ -78,20 +73,4 @@ export function web3(): Web3Store {
 			web3Modal.clearCachedProvider();
 		}
 	}
-}
-
-export function decimal(init: number): DecimalStore {
-	const store = writable(init);
-	const bigStore = derived(store, $store => new BigNumber($store))
-
-	return {
-		subscribe: store.subscribe,
-		set: (newValue: number) => {
-			if (newValue != null) {
-				store.set(newValue);
-			}
-		},
-		update: store.update,
-		asBig: () => bigStore
-	};
 }

@@ -2,7 +2,8 @@
   import { onMount } from "svelte";
   import type { ethers } from "ethers";
 
-  import { decimal, web3 } from "./utils";
+  import { decimal } from "./utils/decimal";
+  import { web3 } from "./utils/web3";
 
   import Expansion from "./components/Expansion.svelte";
   import FormattedDecimalInput from "./components/FormattedDecimalInput.svelte";

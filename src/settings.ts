@@ -1,4 +1,4 @@
-import { decimal } from "./utils" 
+import { decimal } from "./utils/decimal" 
 
 export const supplyChangeLimit = decimal(0.02); // 2%
 export const supplyChangeDivisor = decimal(25);
