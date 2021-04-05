@@ -8,8 +8,8 @@ export interface DecimalStore extends Writable<number> {
 }
 
 export interface Web3Store extends Readable<Web3Provider> {
-	connect(): void;
-	connectIfCachedProvider(): void;
+	connect(): Promise<ethers.providers.Web3Provider>;
+	connectIfCachedProvider(): Promise<ethers.providers.Web3Provider>;
 	disconnect(): void;
 }
 
@@ -31,7 +31,6 @@ export function web3(): Web3Store {
 	});
 
 	const init: Web3Provider = {
-		provider: undefined,
 		chainId: undefined,
 		isConnected: false
 	};
@@ -40,6 +39,7 @@ export function web3(): Web3Store {
 
 	web3Modal.on("connect", (info: { chainId: number }) => {
 		update(web3 => {
+			web3.isConnected = true;
 			web3.chainId = info.chainId;
 			return web3;
 		});
@@ -48,33 +48,29 @@ export function web3(): Web3Store {
 	web3Modal.on("disconnect", (error: { code: number; message: string }) => {
 		update(web3 => {
 			web3.isConnected = false;
-			web3.provider = undefined;
 			web3.chainId = undefined;
 			return web3;
 		});
 	});
 
-	const onConnected = (provider: any): void => {
-		update(web3 => {
-			web3.provider = new ethers.providers.Web3Provider(provider);
-			web3.isConnected = true;
-			return web3;
-		});
+	const createEthersProvider = (provider: any): ethers.providers.Web3Provider => {
+		return new ethers.providers.Web3Provider(provider);
 	}
 
 	return {
 		subscribe,
-		connect: () => {
-			web3Modal.connect().then(onConnected);
+		connect: (): Promise<ethers.providers.Web3Provider> => {
+			return web3Modal.connect().then(createEthersProvider);
 		},
-		connectIfCachedProvider: () => {
+		connectIfCachedProvider: (): Promise<ethers.providers.Web3Provider> => {
 			if (web3Modal.cachedProvider) {
-				web3Modal.connect().then(onConnected);
+				return web3Modal.connect().then(createEthersProvider);
 			}
+
+			return Promise.reject();
 		},
 		disconnect: () => {
 			update(web3 => {
-				web3.provider = undefined;
 				web3.chainId = undefined;
 				web3.isConnected = false;
 				return web3;

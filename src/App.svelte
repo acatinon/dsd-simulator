@@ -1,5 +1,7 @@
 <script lang="typescript">
   import { onMount } from "svelte";
+  import type { ethers } from "ethers";
+
   import { decimal, web3 } from "./utils";
 
   import Expansion from "./components/Expansion.svelte";
@@ -12,10 +14,23 @@
   const bondedCdsd = decimal(5_000_000);
   const web3Provider = web3();
 
+  let account = "";
+
   onMount(async () => {
-    web3Provider.connectIfCachedProvider();
+    web3Provider.connectIfCachedProvider().then(onConnected);
   });
 
+  const connect = () => {
+    web3Provider.connect().then(onConnected);
+  };
+
+  const onConnected = async (ethersProvider: ethers.providers.Web3Provider) => {
+    ethersProvider.listAccounts().then((accounts: string[]) => {
+      if (accounts.length > 0) {
+        account = accounts[0];
+      }
+    });
+  };
 </script>
 
 <div class="container">
@@ -28,16 +43,12 @@
     <div class="level-right">
       <p class="level-item">
         {#if $web3Provider.isConnected}
-          {#await $web3Provider.provider.listAccounts()}
-            ...
-          {:then accounts}
-            <span class="tag is-primary is-light">{accounts[0]}</span>
-            <span class="icon" on:click={web3Provider.disconnect}>
-              <ion-icon name="log-out-outline"></ion-icon>
-            </span>
-          {/await}
+          <span class="tag is-primary is-light">{account}</span>
+          <span class="icon" on:click={web3Provider.disconnect}>
+            <ion-icon name="log-out-outline" />
+          </span>
         {:else}
-          <button class="button is-primary" on:click={web3Provider.connect}>Connect</button>
+          <button class="button is-primary" on:click={connect}>Connect</button>
         {/if}
       </p>
     </div>
@@ -45,9 +56,7 @@
 
   <section class="section">
     <h2 class="subtitle">Settings</h2>
-    <form
-      class="is-flex is-flex-direction-row is-justify-content-space-between"
-    >
+    <form class="is-flex is-flex-direction-row is-justify-content-space-between">
       <div class="field mr-2">
         <label class="label">TWAP</label>
         <div class="control">
