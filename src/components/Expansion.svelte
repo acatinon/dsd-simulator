@@ -1,6 +1,7 @@
 <script lang="typescript">
   import { onMount } from "svelte";
-  import { writable, derived } from "svelte/store";
+  import { derived } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import BigNumber from "bignumber.js";
   import {
     supplyChangeLimit,
@@ -9,18 +10,18 @@
     treasuryRatio,
     cdsdRedemptionRatio,
   } from "../settings";
-  import type { DecimalStore } from "../utils";
+  import type { DecimalStore } from "../utils/decimal";
 
   import FormattedDecimal from "./FormattedDecimal.svelte";
 
-  export let twap: DecimalStore;
+  export let twap: Writable<BigNumber>;
   export let totalSupply: DecimalStore;
   export let bondedDsd: DecimalStore;
   export let bondedLp: DecimalStore;
   export let bondedCdsd: DecimalStore;
 
   const delta = derived(
-    [twap.asBig(), supplyChangeDivisor.asBig(), supplyChangeLimit.asBig()],
+    [twap, supplyChangeDivisor.asBig(), supplyChangeLimit.asBig()],
     ([$twap, $supplyChangeDivisor, $supplyChangeLimit]) =>
       BigNumber.min(
         $twap.minus("1").div($supplyChangeDivisor),
