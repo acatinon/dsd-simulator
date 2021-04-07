@@ -15,7 +15,7 @@
   import FormattedDecimal from "./FormattedDecimal.svelte";
 
   export let twap: Writable<BigNumber>;
-  export let totalSupply: DecimalStore;
+  export let totalSupply: Writable<BigNumber>;
   export let bondedDsd: DecimalStore;
   export let bondedLp: DecimalStore;
   export let bondedCdsd: DecimalStore;
@@ -30,7 +30,7 @@
   );
 
   const newSupply = derived(
-    [delta, totalSupply.asBig()],
+    [delta, totalSupply],
     ([$delta, $totalSupply]) => $delta.multipliedBy($totalSupply)
   );
 

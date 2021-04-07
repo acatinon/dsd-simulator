@@ -6,14 +6,15 @@
 
   import { decimal } from "./utils/decimal";
   import { web3 } from "./utils/web3";
-  import getTwap from "./utils/twap";
+  import { getTwap } from "./utils/uniswapPool";
+  import { getTotalSupply } from "./utils/dsd";
 
   import Expansion from "./components/Expansion.svelte";
   import FormattedDecimalInput from "./components/FormattedDecimalInput.svelte";
   import FormattedDecimal from "./components/FormattedDecimal.svelte";
 
   const twap = writable(new BigNumber(1));
-  const totalSupply = decimal(141_593_462);
+  const totalSupply = writable(new BigNumber(0));
   const bondedDsd = decimal(17_835_130);
   const bondedLp = decimal(3_578_883);
   const bondedCdsd = decimal(5_000_000);
@@ -37,6 +38,10 @@
 
       getTwap(ethersProvider).then((twapNumber) => {
         twap.set(twapNumber);
+      });
+
+      getTotalSupply(ethersProvider).then((totalSupplyNumber) => {
+        totalSupply.set(totalSupplyNumber);
       });
     });
   };
@@ -75,7 +80,7 @@
       <div class="field mr-2">
         <label class="label">Total supply</label>
         <div class="control">
-          <FormattedDecimalInput store={totalSupply} />
+          <FormattedDecimal value={$totalSupply} />
         </div>
       </div>
       <div class="field mr-2">

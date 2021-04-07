@@ -1,20 +1,20 @@
 import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
-import { uniswapPoolAddr } from "../settings"
 
-export default async function getTwap(ethersProvider: ethers.providers.Web3Provider): Promise<BigNumber> {
+const uniswapPoolAddr = "0x66e33d2605c5fb25ebb7cd7528e7997b0afa55e8";
+
+const uniswapPoolAbi = [
+    "function price0CumulativeLast() external view returns (uint)",
+    "function price1CumulativeLast() external view returns (uint)",
+    "function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast)"
+];
+
+export async function getTwap(ethersProvider: ethers.providers.Web3Provider): Promise<BigNumber> {
 
     const epochStartResponse = await fetch("/epoch.json");
     const epochStart = await epochStartResponse.json();
 
-    const uniswapPoolAbi = [
-        "function price0CumulativeLast() external view returns (uint)",
-        "function price1CumulativeLast() external view returns (uint)",
-        "function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast)"
-    ];
-
     const uniContract = new ethers.Contract(uniswapPoolAddr, uniswapPoolAbi, ethersProvider);
-
 
     const epochStartCumulativePrice = new BigNumber(epochStart.priceCumulative);
     const reserves = await uniContract.getReserves();
