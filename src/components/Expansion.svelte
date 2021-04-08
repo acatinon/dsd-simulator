@@ -10,7 +10,6 @@
     treasuryRatio,
     cdsdRedemptionRatio,
   } from "../settings";
-  import type { DecimalStore } from "../utils/decimal";
 
   import FormattedDecimal from "./FormattedDecimal.svelte";
 
@@ -21,7 +20,7 @@
   export let totalBondedCdsd: Writable<BigNumber>;
 
   const delta = derived(
-    [twap, supplyChangeDivisor.asBig(), supplyChangeLimit.asBig()],
+    [twap, supplyChangeDivisor, supplyChangeLimit],
     ([$twap, $supplyChangeDivisor, $supplyChangeLimit]) =>
       BigNumber.min(
         $twap.minus("1").div($supplyChangeDivisor),
@@ -35,7 +34,7 @@
   );
 
   const lpRewardAmount = derived(
-    [newSupply, oraclePoolRatio.asBig()],
+    [newSupply, oraclePoolRatio],
     ([$newSupply, $oraclePoolRatio]) =>
       $newSupply.multipliedBy($oraclePoolRatio)
   );
@@ -46,12 +45,12 @@
   );
 
   const treasuryAmount = derived(
-    [newSupply, treasuryRatio.asBig()],
+    [newSupply, treasuryRatio],
     ([$newSupply, $treasuryRatio]) => $newSupply.multipliedBy($treasuryRatio)
   );
 
   const cdsdRedeemableAmount = derived(
-    [newSupply, cdsdRedemptionRatio.asBig(), totalBondedCdsd],
+    [newSupply, cdsdRedemptionRatio, totalBondedCdsd],
     ([$newSupply, $cdsdRedemptionRatio, $totalBondedCdsd]) =>
       BigNumber.min($newSupply.multipliedBy($cdsdRedemptionRatio), $totalBondedCdsd)
   );
