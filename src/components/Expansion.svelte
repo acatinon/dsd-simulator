@@ -16,8 +16,8 @@
 
   export let twap: Writable<BigNumber>;
   export let totalSupply: Writable<BigNumber>;
-  export let bondedDsd: DecimalStore;
-  export let bondedLp: DecimalStore;
+  export let totalBondedDsd: Writable<BigNumber>;
+  export let totalBondedLp: Writable<BigNumber>;
   export let bondedCdsd: DecimalStore;
 
   const delta = derived(
@@ -41,8 +41,8 @@
   );
 
   const lpRewardRatio = derived(
-    [lpRewardAmount, bondedLp.asBig()],
-    ([$lpRewardAmount, $bondedLp]) => $lpRewardAmount.dividedBy($bondedLp)
+    [lpRewardAmount, totalBondedLp],
+    ([$lpRewardAmount, $totalBondedLp]) => $lpRewardAmount.dividedBy($totalBondedLp)
   );
 
   const treasuryAmount = derived(
@@ -72,9 +72,9 @@
   );
 
   const dsdRedeemableRatio = derived(
-    [dsdRedeemableAmount, bondedDsd.asBig()],
-    ([$dsdRedeemableAmount, $bondedCdsd]) =>
-      $dsdRedeemableAmount.dividedBy($bondedCdsd)
+    [dsdRedeemableAmount, totalBondedDsd],
+    ([$dsdRedeemableAmount, $totalBondedDsd]) =>
+      $dsdRedeemableAmount.dividedBy($totalBondedDsd)
   );
 </script>
 

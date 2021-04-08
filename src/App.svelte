@@ -6,8 +6,14 @@
 
   import { decimal } from "./utils/decimal";
   import { web3 } from "./utils/web3";
-  import { getTwap } from "./utils/uniswapPool";
+  import {
+    getTwap,
+    getReserves,
+    getTotalSupply as getTotalPoolSupply,
+  } from "./utils/uniswapPool";
   import { getTotalSupply } from "./utils/dsd";
+  import { getTotalBonded as getTotalBondedDao } from "./utils/dao";
+  import { getTotalBonded as getTotalBondedLp } from "./utils/lp";
 
   import Expansion from "./components/Expansion.svelte";
   import FormattedDecimalInput from "./components/FormattedDecimalInput.svelte";
@@ -15,8 +21,8 @@
 
   const twap = writable(new BigNumber(1));
   const totalSupply = writable(new BigNumber(0));
-  const bondedDsd = decimal(17_835_130);
-  const bondedLp = decimal(3_578_883);
+  const totalBondedDsd = writable(new BigNumber(0));
+  const totalBondedLp = writable(new BigNumber(0));
   const bondedCdsd = decimal(5_000_000);
   const web3Provider = web3();
 
@@ -42,6 +48,23 @@
 
       getTotalSupply(ethersProvider).then((totalSupplyNumber) => {
         totalSupply.set(totalSupplyNumber);
+      });
+
+      getTotalBondedDao(ethersProvider).then((totalBondedNumber) => {
+        totalBondedDsd.set(totalBondedNumber);
+      });
+
+
+
+      Promise.all([
+        getTotalBondedLp(ethersProvider),
+        getTotalPoolSupply(ethersProvider),
+        getReserves(ethersProvider),
+      ]).then(([totalBondedLpNumber, totalPoolSupplyNumber, reservesNumber]) => {
+        console.log("totalPoolSupplyNumber: " + totalPoolSupplyNumber);
+        console.log("reserve: " + reservesNumber[1]);
+
+        totalBondedLp.set(totalBondedLpNumber.multipliedBy(reservesNumber[1]).dividedBy(totalPoolSupplyNumber));
       });
     });
   };
@@ -70,7 +93,9 @@
 
   <section class="section">
     <h2 class="subtitle">Settings</h2>
-    <form class="is-flex is-flex-direction-row is-justify-content-space-between">
+    <form
+      class="is-flex is-flex-direction-row is-justify-content-space-between"
+    >
       <div class="field mr-2">
         <label class="label">TWAP</label>
         <div class="control">
@@ -86,13 +111,13 @@
       <div class="field mr-2">
         <label class="label">Bonded DSD</label>
         <div class="control">
-          <FormattedDecimalInput store={bondedDsd} />
+          <FormattedDecimal value={$totalBondedDsd} />
         </div>
       </div>
       <div class="field mr-2">
         <label class="label">Bonded LP</label>
         <div class="control">
-          <FormattedDecimalInput store={bondedLp} />
+          <FormattedDecimal value={$totalBondedLp} />
         </div>
       </div>
       <div class="field mr-2">
@@ -115,6 +140,12 @@
       {/if}
     </h2>
 
-    <Expansion {twap} {totalSupply} {bondedDsd} {bondedLp} {bondedCdsd} />
+    <Expansion
+      {twap}
+      {totalSupply}
+      {totalBondedDsd}
+      {totalBondedLp}
+      {bondedCdsd}
+    />
   </section>
 </div>
