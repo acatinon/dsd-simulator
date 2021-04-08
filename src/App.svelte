@@ -16,6 +16,7 @@
   import { getTotalBonded as getTotalBondedLp } from "./utils/lp";
 
   import Expansion from "./components/Expansion.svelte";
+  import Contraction from "./components/Contraction.svelte";
   import FormattedDecimalInput from "./components/FormattedDecimalInput.svelte";
   import FormattedDecimal from "./components/FormattedDecimal.svelte";
 
@@ -143,6 +144,7 @@
       {/if}
     </h2>
 
+    {#if $twap.gt(1)}
     <Expansion
       {twap}
       {totalSupply}
@@ -150,5 +152,13 @@
       {totalBondedLp}
       {totalBondedCdsd}
     />
+    {:else if $twap.lt(1)}
+    <Contraction
+      {twap}
+      {totalSupply}
+    />
+    {:else}
+      <p>Status quo</p>
+    {/if}
   </section>
 </div>
