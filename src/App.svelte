@@ -4,7 +4,6 @@
   import type { ethers } from "ethers";
   import BigNumber from "bignumber.js";
 
-  import { decimal } from "./utils/decimal";
   import { web3 } from "./utils/web3";
   import {
     getTwap,
