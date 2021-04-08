@@ -20,11 +20,11 @@
   export let totalBondedCdsd: Writable<BigNumber>;
 
   const delta = derived(
-    [twap, supplyChangeDivisor, supplyChangeLimit],
-    ([$twap, $supplyChangeDivisor, $supplyChangeLimit]) =>
+    twap,
+    $twap =>
       BigNumber.min(
-        $twap.minus("1").div($supplyChangeDivisor),
-        $supplyChangeLimit
+        $twap.minus("1").div(supplyChangeDivisor),
+        supplyChangeLimit
       )
   );
 
@@ -34,9 +34,9 @@
   );
 
   const lpRewardAmount = derived(
-    [newSupply, oraclePoolRatio],
-    ([$newSupply, $oraclePoolRatio]) =>
-      $newSupply.multipliedBy($oraclePoolRatio)
+    newSupply,
+    $newSupply =>
+      $newSupply.multipliedBy(oraclePoolRatio)
   );
 
   const lpRewardRatio = derived(
@@ -45,14 +45,14 @@
   );
 
   const treasuryAmount = derived(
-    [newSupply, treasuryRatio],
-    ([$newSupply, $treasuryRatio]) => $newSupply.multipliedBy($treasuryRatio)
+    newSupply,
+    $newSupply => $newSupply.multipliedBy(treasuryRatio)
   );
 
   const cdsdRedeemableAmount = derived(
-    [newSupply, cdsdRedemptionRatio, totalBondedCdsd],
-    ([$newSupply, $cdsdRedemptionRatio, $totalBondedCdsd]) =>
-      BigNumber.min($newSupply.multipliedBy($cdsdRedemptionRatio), $totalBondedCdsd)
+    [newSupply, totalBondedCdsd],
+    ([$newSupply, $totalBondedCdsd]) =>
+      BigNumber.min($newSupply.multipliedBy(cdsdRedemptionRatio), $totalBondedCdsd)
   );
 
   const cdsdRedeemableRatio = derived(
