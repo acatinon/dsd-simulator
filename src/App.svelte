@@ -12,7 +12,7 @@
     getTotalSupply as getTotalPoolSupply,
   } from "./utils/uniswapPool";
   import { getTotalSupply } from "./utils/dsd";
-  import { getTotalBonded as getTotalBondedDao } from "./utils/dao";
+  import { getTotalBonded as getTotalBondedDao, getTotalCDSDBonded } from "./utils/dao";
   import { getTotalBonded as getTotalBondedLp } from "./utils/lp";
 
   import Expansion from "./components/Expansion.svelte";
@@ -23,7 +23,7 @@
   const totalSupply = writable(new BigNumber(0));
   const totalBondedDsd = writable(new BigNumber(0));
   const totalBondedLp = writable(new BigNumber(0));
-  const bondedCdsd = decimal(5_000_000);
+  const totalBondedCdsd = writable(new BigNumber(0));
   const web3Provider = web3();
 
   let account = "";
@@ -55,7 +55,6 @@
       });
 
 
-
       Promise.all([
         getTotalBondedLp(ethersProvider),
         getTotalPoolSupply(ethersProvider),
@@ -65,6 +64,10 @@
         console.log("reserve: " + reservesNumber[1]);
 
         totalBondedLp.set(totalBondedLpNumber.multipliedBy(reservesNumber[1]).dividedBy(totalPoolSupplyNumber));
+      });
+
+      getTotalCDSDBonded(ethersProvider).then((toalBondedNumber) => {
+        totalBondedCdsd.set(toalBondedNumber);
       });
     });
   };
@@ -123,7 +126,7 @@
       <div class="field mr-2">
         <label class="label">Bonded CDSD</label>
         <div class="control">
-          <FormattedDecimalInput store={bondedCdsd} />
+          <FormattedDecimal value={$totalBondedCdsd} />
         </div>
       </div>
     </form>
@@ -145,7 +148,7 @@
       {totalSupply}
       {totalBondedDsd}
       {totalBondedLp}
-      {bondedCdsd}
+      {totalBondedCdsd}
     />
   </section>
 </div>

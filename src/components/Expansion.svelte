@@ -18,7 +18,7 @@
   export let totalSupply: Writable<BigNumber>;
   export let totalBondedDsd: Writable<BigNumber>;
   export let totalBondedLp: Writable<BigNumber>;
-  export let bondedCdsd: DecimalStore;
+  export let totalBondedCdsd: Writable<BigNumber>;
 
   const delta = derived(
     [twap, supplyChangeDivisor.asBig(), supplyChangeLimit.asBig()],
@@ -51,15 +51,15 @@
   );
 
   const cdsdRedeemableAmount = derived(
-    [newSupply, cdsdRedemptionRatio.asBig(), bondedCdsd.asBig()],
-    ([$newSupply, $cdsdRedemptionRatio, $bondedCdsd]) =>
-      BigNumber.min($newSupply.multipliedBy($cdsdRedemptionRatio), $bondedCdsd)
+    [newSupply, cdsdRedemptionRatio.asBig(), totalBondedCdsd],
+    ([$newSupply, $cdsdRedemptionRatio, $totalBondedCdsd]) =>
+      BigNumber.min($newSupply.multipliedBy($cdsdRedemptionRatio), $totalBondedCdsd)
   );
 
   const cdsdRedeemableRatio = derived(
-    [cdsdRedeemableAmount, bondedCdsd.asBig()],
-    ([$cdsdRedeemableAmount, $bondedCdsd]) =>
-      $cdsdRedeemableAmount.dividedBy($bondedCdsd)
+    [cdsdRedeemableAmount, totalBondedCdsd],
+    ([$cdsdRedeemableAmount, $totalBondedCdsd]) =>
+      $cdsdRedeemableAmount.dividedBy($totalBondedCdsd)
   );
 
   const dsdRedeemableAmount = derived(
