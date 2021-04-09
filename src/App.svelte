@@ -6,24 +6,30 @@
 
   import { web3 } from "./utils/web3";
   import {
-    getTwap,
-    getReserves,
-    getTotalSupply as getTotalPoolSupply,
-  } from "./utils/uniswapPool";
-  import { getTotalSupply } from "./utils/dsd";
-  import { getTotalBonded as getTotalBondedDao, getTotalCDSDBonded } from "./utils/dao";
-  import { getTotalBonded as getTotalBondedLp } from "./utils/lp";
+    DaoContract,
+    DsdTokenContract,
+    CdsdTokenContract,
+    DsdLiquidityPoolContract,
+    CdsdLiquidityPoolContract,
+    DsdPoolIncentivationContract,
+    CdsdPoolIncentivationContract
+  } from "./utils/contracts";
+ 
 
   import Expansion from "./components/Expansion.svelte";
   import Contraction from "./components/Contraction.svelte";
-  import FormattedDecimalInput from "./components/FormattedDecimalInput.svelte";
   import FormattedDecimal from "./components/FormattedDecimal.svelte";
 
   const twap = writable(new BigNumber(1));
-  const totalSupply = writable(new BigNumber(0));
+  const totalSupplyDsd = writable(new BigNumber(0));
+  const totalSupplyCdsd = writable(new BigNumber(0));
   const totalBondedDsd = writable(new BigNumber(0));
-  const totalBondedLp = writable(new BigNumber(0));
   const totalBondedCdsd = writable(new BigNumber(0));
+  const totalSupplyDsdLp = writable(new BigNumber(0));
+  const totalSupplyCdsdLp = writable(new BigNumber(0));
+  const totalBondedDsdLp = writable(new BigNumber(0));
+  const totalBondedCdsdLp = writable(new BigNumber(0));
+
   const web3Provider = web3();
 
   let account = "";
@@ -37,38 +43,70 @@
   };
 
   const onConnected = async (ethersProvider: ethers.providers.Web3Provider) => {
+    let dao = new DaoContract(ethersProvider);
+    let dsd = new DsdTokenContract(ethersProvider);
+    let cdsd = new CdsdTokenContract(ethersProvider);
+    let dsdLp = new DsdLiquidityPoolContract(ethersProvider);
+    let cdsdLp = new CdsdLiquidityPoolContract(ethersProvider);
+    let dsdPoolIncentivation = new DsdPoolIncentivationContract(ethersProvider);
+    let cdsdPoolIncentivation = new CdsdPoolIncentivationContract(ethersProvider);
+
     ethersProvider.listAccounts().then((accounts: string[]) => {
       if (accounts.length > 0) {
         account = accounts[0];
       }
 
-      getTwap(ethersProvider).then((twapNumber) => {
+      dsdLp.getTwap().then((twapNumber) => {
         twap.set(twapNumber);
       });
 
-      getTotalSupply(ethersProvider).then((totalSupplyNumber) => {
-        totalSupply.set(totalSupplyNumber);
+      dsd.getTotalSupply().then((totalSupplyNumber) => {
+        totalSupplyDsd.set(totalSupplyNumber);
       });
 
-      getTotalBondedDao(ethersProvider).then((totalBondedNumber) => {
+      cdsd.getTotalSupply().then((totalSupplyNumber) => {
+        totalSupplyCdsd.set(totalSupplyNumber);
+      });
+
+      dao.getTotalDsdBonded().then((totalBondedNumber) => {
         totalBondedDsd.set(totalBondedNumber);
       });
 
-
-      Promise.all([
-        getTotalBondedLp(ethersProvider),
-        getTotalPoolSupply(ethersProvider),
-        getReserves(ethersProvider),
-      ]).then(([totalBondedLpNumber, totalPoolSupplyNumber, reservesNumber]) => {
-        console.log("totalPoolSupplyNumber: " + totalPoolSupplyNumber);
-        console.log("reserve: " + reservesNumber[1]);
-
-        totalBondedLp.set(totalBondedLpNumber.multipliedBy(reservesNumber[1]).dividedBy(totalPoolSupplyNumber));
-      });
-
-      getTotalCDSDBonded(ethersProvider).then((toalBondedNumber) => {
+      dao.getTotalCdsdBonded().then((toalBondedNumber) => {
         totalBondedCdsd.set(toalBondedNumber);
       });
+
+      Promise.all([
+        dsdPoolIncentivation.getTotalBonded(),
+        dsdLp.getTotalSupply(),
+        dsdLp.getReserves(),
+      ]).then(
+        ([totalBondedLpNumber, totalPoolSupplyNumber, reservesNumber]) => {
+          totalSupplyDsdLp.set(reservesNumber[1]);
+
+          totalBondedDsdLp.set(
+            totalBondedLpNumber
+              .multipliedBy(reservesNumber[1])
+              .dividedBy(totalPoolSupplyNumber)
+          );
+        }
+      );
+
+      Promise.all([
+        cdsdPoolIncentivation.getTotalBonded(),
+        cdsdLp.getTotalSupply(),
+        cdsdLp.getReserves(),
+      ]).then(
+        ([totalBondedLpNumber, totalPoolSupplyNumber, reservesNumber]) => {
+          totalSupplyCdsdLp.set(reservesNumber[1]);
+
+          totalBondedCdsdLp.set(
+            totalBondedLpNumber
+              .multipliedBy(reservesNumber[1])
+              .dividedBy(totalPoolSupplyNumber)
+          );
+        }
+      );
     });
   };
 </script>
@@ -94,6 +132,76 @@
     </div>
   </nav>
 
+  <section class="section columns">
+    <!-- DSD -->
+    <div class="column">
+      <h3 class="subtitle">DSD</h3>
+      <table class="table is-narrow is-fullwidth">
+        <tbody>
+          <tr>
+            <th>Total supply</th>
+            <td class="has-text-right"><FormattedDecimal value={$totalSupplyDsd} /></td>
+          </tr>
+          <tr>
+            <th>Bonded</th>
+            <td class="has-text-right"><FormattedDecimal value={$totalBondedDsd} /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- DSD LP -->
+    <div class="column">
+      <h3 class="subtitle">DSD LP</h3>
+      <table class="table is-narrow is-fullwidth">
+        <tbody>
+          <tr>
+            <th>Total supply</th>
+            <td class="has-text-right"><FormattedDecimal value={$totalSupplyDsdLp} /></td>
+          </tr>
+          <tr>
+            <th>Bonded</th>
+            <td class="has-text-right"><FormattedDecimal value={$totalBondedDsdLp} /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CDSD -->
+    <div class="column">
+      <h3 class="subtitle">CDSD</h3>
+      <table class="table is-narrow is-fullwidth">
+        <tbody>
+          <tr>
+            <th>Total supply</th>
+            <td class="has-text-right"><FormattedDecimal value={$totalSupplyCdsd} /></td>
+          </tr>
+          <tr>
+            <th>Bonded</th>
+            <td class="has-text-right"><FormattedDecimal value={$totalBondedCdsd} /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CDSD LP -->
+    <div class="column">
+      <h3 class="subtitle">CDSD LP</h3>
+      <table class="table is-narrow is-fullwidth">
+        <tbody>
+          <tr>
+            <th>Total supply</th>
+            <td class="has-text-right"><FormattedDecimal value={$totalSupplyCdsdLp} /></td>
+          </tr>
+          <tr>
+            <th>Bonded</th>
+            <td class="has-text-right"><FormattedDecimal value={$totalBondedCdsdLp} /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
   <section class="section">
     <h2 class="subtitle">Settings</h2>
     <form
@@ -105,30 +213,7 @@
           <FormattedDecimal value={$twap} decimals={4} />
         </div>
       </div>
-      <div class="field mr-2">
-        <label class="label">Total supply</label>
-        <div class="control">
-          <FormattedDecimal value={$totalSupply} />
-        </div>
-      </div>
-      <div class="field mr-2">
-        <label class="label">Bonded DSD</label>
-        <div class="control">
-          <FormattedDecimal value={$totalBondedDsd} />
-        </div>
-      </div>
-      <div class="field mr-2">
-        <label class="label">Bonded LP</label>
-        <div class="control">
-          <FormattedDecimal value={$totalBondedLp} />
-        </div>
-      </div>
-      <div class="field mr-2">
-        <label class="label">Bonded CDSD</label>
-        <div class="control">
-          <FormattedDecimal value={$totalBondedCdsd} />
-        </div>
-      </div>
+    
     </form>
   </section>
 
@@ -144,18 +229,15 @@
     </h2>
 
     {#if $twap.gt(1)}
-    <Expansion
-      {twap}
-      {totalSupply}
-      {totalBondedDsd}
-      {totalBondedLp}
-      {totalBondedCdsd}
-    />
+      <Expansion
+        {twap}
+        {totalSupplyDsd}
+        {totalBondedDsd}
+        {totalBondedDsdLp}
+        {totalBondedCdsd}
+      />
     {:else if $twap.lt(1)}
-    <Contraction
-      {twap}
-      {totalSupply}
-    />
+      <Contraction {twap} {totalSupplyCdsd} />
     {:else}
       <p>Status quo</p>
     {/if}

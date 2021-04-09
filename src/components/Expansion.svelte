@@ -14,9 +14,9 @@
   import FormattedDecimal from "./FormattedDecimal.svelte";
 
   export let twap: Writable<BigNumber>;
-  export let totalSupply: Writable<BigNumber>;
+  export let totalSupplyDsd: Writable<BigNumber>;
   export let totalBondedDsd: Writable<BigNumber>;
-  export let totalBondedLp: Writable<BigNumber>;
+  export let totalBondedDsdLp: Writable<BigNumber>;
   export let totalBondedCdsd: Writable<BigNumber>;
 
   const delta = derived(
@@ -29,8 +29,8 @@
   );
 
   const newSupply = derived(
-    [delta, totalSupply],
-    ([$delta, $totalSupply]) => $delta.multipliedBy($totalSupply)
+    [delta, totalSupplyDsd],
+    ([$delta, $totalSupplyDsd]) => $delta.multipliedBy($totalSupplyDsd)
   );
 
   const lpRewardAmount = derived(
@@ -40,8 +40,8 @@
   );
 
   const lpRewardRatio = derived(
-    [lpRewardAmount, totalBondedLp],
-    ([$lpRewardAmount, $totalBondedLp]) => $lpRewardAmount.dividedBy($totalBondedLp)
+    [lpRewardAmount, totalBondedDsdLp],
+    ([$lpRewardAmount, $totalBondedLp]) => $lpRewardAmount.dividedBy($totalBondedDsdLp)
   );
 
   const treasuryAmount = derived(
