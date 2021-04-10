@@ -7,15 +7,37 @@ export interface Token {
   totalBonded: Writable<BigNumber>;
 }
 
+export interface DSD extends Token {
+  totalSupply: Writable<BigNumber>;
+  totalBonded: Writable<BigNumber>;
+}
+
+export interface CDSD extends Token {
+  totalEarnable: Writable<BigNumber>;
+  totalEarned: Writable<BigNumber>;
+  totalRedeemable: Writable<BigNumber>;
+}
+
 export interface LpToken extends Token {
 }
 
-export async function buildToken(dao: DaoContract, token: TokenContract): Promise<Token> {
+export async function buildDsdToken(dao: DaoContract, dsdContract: TokenContract): Promise<DSD> {
   return {
-    totalSupply: writable(await token.getTotalSupply()),
-    totalBonded: writable(await token.getTotalBonded(dao))
+    totalSupply: writable(await dsdContract.getTotalSupply()),
+    totalBonded: writable(await dsdContract.getTotalBonded(dao))
   }
 }
+
+export async function buildCdsdToken(dao: DaoContract, cdsdContract: TokenContract): Promise<CDSD> {
+  return {
+    totalSupply: writable(await cdsdContract.getTotalSupply()),
+    totalBonded: writable(await cdsdContract.getTotalBonded(dao)),
+    totalEarnable: writable(await dao.getTotalCdsdEarnable()),
+    totalEarned: writable(await dao.getTotalCdsdEarned()),
+    totalRedeemable: writable(await dao.getTotalCdsdRedeemable()),
+  }
+}
+
 
 export async function buildLpToken(lpToken: LiquidityPoolContract, incentivePool: PoolIncentivationContract): Promise<LpToken> {
   return Promise.all([

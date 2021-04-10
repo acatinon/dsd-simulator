@@ -13,7 +13,10 @@ const cdsdPoolIncentivationAddr = "0x170cec2070399B85363b788Af2FB059DB8Ef8aeD";
 
 const daoAbi = [
     "function totalBonded() public view returns (uint256)",
-    "function totalCDSDBonded() public view returns (uint256)"
+    "function totalCDSDBonded() public view returns (uint256)",
+    "function totalCDSDEarnable() public view returns (uint256)",
+    "function totalCDSDEarned() public view returns (uint256)",
+    "function totalCDSDRedeemable() public view returns (uint256)"
 ];
 
 const tokenAbi = [
@@ -56,6 +59,24 @@ export class DaoContract extends Contract {
     
     public async getTotalCdsdBonded(): Promise<BigNumber> {
         const totalBonded = await this.ethersContract.totalCDSDBonded();
+    
+        return new BigNumber(totalBonded.toString()).dividedBy(decimalDivisor);
+    }
+
+    public async getTotalCdsdEarnable(): Promise<BigNumber> {
+        const totalBonded = await this.ethersContract.totalCDSDEarnable();
+    
+        return new BigNumber(totalBonded.toString()).dividedBy(decimalDivisor);
+    }
+
+    public async getTotalCdsdEarned(): Promise<BigNumber> {
+        const totalBonded = await this.ethersContract.totalCDSDEarned();
+    
+        return new BigNumber(totalBonded.toString()).dividedBy(decimalDivisor);
+    }
+
+    public async getTotalCdsdRedeemable(): Promise<BigNumber> {
+        const totalBonded = await this.ethersContract.totalCDSDRedeemable();
     
         return new BigNumber(totalBonded.toString()).dividedBy(decimalDivisor);
     }

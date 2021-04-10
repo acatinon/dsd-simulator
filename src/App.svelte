@@ -15,12 +15,14 @@
     CdsdPoolIncentivationContract
   } from "./utils/contracts";
   import type {
-    Token,
+    DSD,
+    CDSD,
     LpToken,
   } from "./utils/tokens"
 
   import {
-    buildToken,
+    buildDsdToken,
+    buildCdsdToken,
     buildLpToken
   } from "./utils/tokens"
  
@@ -30,8 +32,8 @@
   import FormattedDecimal from "./components/FormattedDecimal.svelte";
 
   const twap = writable(new BigNumber(1));
-  let dsd: Token;
-  let cdsd: Token;
+  let dsd: DSD;
+  let cdsd: CDSD;
   let dsdLp: LpToken;
   let cdsdLp: LpToken;
   let isLoaded = false;
@@ -66,8 +68,8 @@
         twap.set(twapNumber);
       });
 
-      dsd = await buildToken(dao, dsdContract);
-      cdsd = await buildToken(dao, cdsdContract);
+      dsd = await buildDsdToken(dao, dsdContract);
+      cdsd = await buildCdsdToken(dao, cdsdContract);
       dsdLp = await buildLpToken(dsdLpContract, dsdncentivationContract);
       cdsdLp = await buildLpToken(cdsdLpContract, cdsdIncentivationContract);
       isLoaded = true;
@@ -107,7 +109,7 @@
             <td class="has-text-right"><FormattedDecimal store={dsd.totalSupply} /></td>
           </tr>
           <tr>
-            <th>Bonded</th>
+            <th>Total bonded</th>
             <td class="has-text-right"><FormattedDecimal store={dsd.totalBonded} /></td>
           </tr>
         </tbody>
@@ -124,7 +126,7 @@
             <td class="has-text-right"><FormattedDecimal store={dsdLp.totalSupply} /></td>
           </tr>
           <tr>
-            <th>Bonded</th>
+            <th>Total bonded</th>
             <td class="has-text-right"><FormattedDecimal store={dsdLp.totalBonded} /></td>
           </tr>
         </tbody>
@@ -141,7 +143,7 @@
             <td class="has-text-right"><FormattedDecimal store={cdsd.totalSupply} /></td>
           </tr>
           <tr>
-            <th>Bonded</th>
+            <th>Total bonded</th>
             <td class="has-text-right"><FormattedDecimal store={cdsd.totalBonded} /></td>
           </tr>
         </tbody>
@@ -158,7 +160,7 @@
             <td class="has-text-right"><FormattedDecimal store={cdsdLp.totalSupply} /></td>
           </tr>
           <tr>
-            <th>Bonded</th>
+            <th>Total bonded</th>
             <td class="has-text-right"><FormattedDecimal store={cdsdLp.totalBonded} /></td>
           </tr>
         </tbody>
