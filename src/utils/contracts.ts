@@ -61,7 +61,7 @@ export class DaoContract extends Contract {
     }
 }
 
-class TokenContract extends Contract {
+export abstract class TokenContract extends Contract {
 
     constructor(ethersProvider: ethers.providers.Web3Provider, addr: string)
     {
@@ -73,6 +73,8 @@ class TokenContract extends Contract {
     
         return new BigNumber(totalSupply.toString()).dividedBy(decimalDivisor);
     }
+
+    public abstract getTotalBonded(dao: DaoContract): Promise<BigNumber>;
 }
 
 export class DsdTokenContract extends TokenContract {
@@ -80,6 +82,10 @@ export class DsdTokenContract extends TokenContract {
     constructor(ethersProvider: ethers.providers.Web3Provider)
     {
         super(ethersProvider, dsdTokenAddr)
+    }
+
+    public async getTotalBonded(dao: DaoContract): Promise<BigNumber> {
+        return dao.getTotalDsdBonded();
     }
 }
 
@@ -89,9 +95,13 @@ export class CdsdTokenContract extends TokenContract {
     {
         super(ethersProvider, cdsdTokenAddr)
     }
+
+    public async getTotalBonded(dao: DaoContract): Promise<BigNumber> {
+        return dao.getTotalCdsdBonded();
+    }
 }
 
-class LiquidityPoolContract extends Contract {
+export class LiquidityPoolContract extends Contract {
 
     constructor(ethersProvider: ethers.providers.Web3Provider, addr: string)
     {
@@ -157,7 +167,7 @@ export class CdsdLiquidityPoolContract extends LiquidityPoolContract {
     }
 }
 
-class PoolIncentivationContract extends Contract {
+export class PoolIncentivationContract extends Contract {
 
     constructor(ethersProvider: ethers.providers.Web3Provider, addr: string)
     {

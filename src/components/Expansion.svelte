@@ -78,7 +78,7 @@
 </script>
 
 <p>
-  The supply will be increased by <FormattedDecimal value={$newSupply} /> DSD.
+  The supply will be increased by <FormattedDecimal store={newSupply} /> DSD.
 </p>
 <p>
   Returning <FormattedDecimal value={$lpRewardRatio.multipliedBy(100)} />% for
