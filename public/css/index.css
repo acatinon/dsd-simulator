@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  section {
+    @apply my-8;
+  }
+
+  .tile h1,
+  .large-tile h1 {
+    @apply text-xl font-bold;
+  }
+
+  .tile h1 {
+    @apply text-center;
+  }
+
+  .tile span {
+    @apply block text-3xl text-center py-4;
+  }
+
+  .tag {
+    @apply rounded font-normal text-base text-white px-1;
+    background-image: linear-gradient(135deg, #3981e8, #66dbd8);
+    opacity: 0.8;
+  }
+
+  .tag-green {
+    @apply bg-green-400 text-green-50;
+    background-image: none;
+    opacity: 1;
+  }
+
+  .tag-red {
+    @apply bg-red-400 text-red-50;
+    background-image: none;
+    opacity: 1;
+  }
+
+  .token-summary {
+    @apply w-full;
+  }
+
+  .token-summary tbody {
+    @apply divide-y;
+  }
+
+  .token-summary th {
+    @apply text-left;
+  }
+
+  .token-summary td {
+    @apply text-right;
+  }
+}

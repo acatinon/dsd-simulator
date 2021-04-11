@@ -30,6 +30,7 @@
   import Expansion from "./components/Expansion.svelte";
   import Contraction from "./components/Contraction.svelte";
   import FormattedDecimal from "./components/FormattedDecimal.svelte";
+import { space } from "svelte/internal";
 
   const twap = writable(new BigNumber(1));
   let dsd: DSD;
@@ -78,31 +79,69 @@
 </script>
 
 <div class="container">
-  <nav class="level section">
-    <div class="level-left">
-      <div class="level-item">
-        <p class="subtitle is-5">DSD Simulator</p>
-      </div>
+  <nav class="flex">
+    <div>
+      <p class="text-xl">DSD Simulator</p>
     </div>
-    <div class="level-right">
-      <p class="level-item">
-        {#if $web3Provider.isConnected}
-          <span class="tag is-primary is-light">{account}</span>
-          <span class="icon" on:click={web3Provider.disconnect}>
-            <ion-icon name="log-out-outline" />
-          </span>
-        {:else}
-          <button class="button is-primary" on:click={connect}>Connect</button>
-        {/if}
-      </p>
+    <div class="flex-grow">
+
+    </div>
+    <div class="py-1">
+      {#if $web3Provider.isConnected}
+        <span class="tag is-primary is-light">{account}</span>
+        <span class="my-2" on:click={web3Provider.disconnect}>
+          <ion-icon name="log-out-outline" />
+        </span>
+      {:else}
+        <button class="button is-primary" on:click={connect}>Connect</button>
+      {/if}
     </div>
   </nav>
+
   {#if isLoaded}
-  <section class="section columns">
+  <section class="grid gap-8 grid-cols-6">
+    <div class="tile">
+      <h1>TWAP</h1>
+      <FormattedDecimal store={twap} decimals={4} />
+    </div>
+    <div class="tile">
+      <h1>Spot price</h1>
+      <span>
+        0.xxxx
+      </span>
+    </div>
+    <div class="large-tile">
+      <h1>
+        Next epoch
+        {#if $twap.gt(1)}
+          <span class="tag tag-green">Expansion</span>
+        {/if}
+        {#if $twap.lt(1)}
+          <span class="tag tag-red">Contraction</span>
+        {/if}
+      </h1>
+  
+      {#if $twap.gt(1)}
+        <Expansion
+          {twap}
+          totalSupplyDsd={dsd.totalSupply}
+          totalBondedDsd={dsd.totalBonded}
+          totalBondedDsdLp={dsdLp.totalBonded}
+          totalBondedCdsd={cdsd.totalBonded}
+        />
+      {:else if $twap.lt(1)}
+        <Contraction {twap} totalSupplyCdsd={cdsd.totalSupply} />
+      {:else}
+        <p>Status quo</p>
+      {/if}
+    </div>
+  </section>
+
+  <section class="grid gap-8 grid-cols-4">
     <!-- DSD -->
     <div class="column">
       <h3 class="subtitle">DSD</h3>
-      <table class="table is-narrow is-fullwidth">
+      <table class="token-summary">
         <tbody>
           <tr>
             <th>Total supply</th>
@@ -119,7 +158,7 @@
     <!-- DSD LP -->
     <div class="column">
       <h3 class="subtitle">DSD LP</h3>
-      <table class="table is-narrow is-fullwidth">
+      <table class="token-summary">
         <tbody>
           <tr>
             <th>Total supply</th>
@@ -136,7 +175,7 @@
     <!-- CDSD -->
     <div class="column">
       <h3 class="subtitle">CDSD</h3>
-      <table class="table is-narrow is-fullwidth">
+      <table class="token-summary">
         <tbody>
           <tr>
             <th>Total supply</th>
@@ -153,7 +192,7 @@
     <!-- CDSD LP -->
     <div class="column">
       <h3 class="subtitle">CDSD LP</h3>
-      <table class="table is-narrow is-fullwidth">
+      <table class="token-summary">
         <tbody>
           <tr>
             <th>Total supply</th>
@@ -166,47 +205,6 @@
         </tbody>
       </table>
     </div>
-  </section>
-
-  <section class="section">
-    <h2 class="subtitle">Settings</h2>
-    <form
-      class="is-flex is-flex-direction-row is-justify-content-space-between"
-    >
-      <div class="field mr-2">
-        <label class="label">TWAP</label>
-        <div class="control">
-          <FormattedDecimal store={twap} decimals={4} />
-        </div>
-      </div>
-    
-    </form>
-  </section>
-
-  <section class="section">
-    <h2 class="subtitle">
-      Next epoch
-      {#if $twap.gt(1)}
-        <span class="tag is-light is-success">Expansion</span>
-      {/if}
-      {#if $twap.lt(1)}
-        <span class="tag is-light is-danger">Contraction</span>
-      {/if}
-    </h2>
-
-    {#if $twap.gt(1)}
-      <Expansion
-        {twap}
-        totalSupplyDsd={dsd.totalSupply}
-        totalBondedDsd={dsd.totalBonded}
-        totalBondedDsdLp={dsdLp.totalBonded}
-        totalBondedCdsd={cdsd.totalBonded}
-      />
-    {:else if $twap.lt(1)}
-      <Contraction {twap} totalSupplyCdsd={cdsd.totalSupply} />
-    {:else}
-      <p>Status quo</p>
-    {/if}
   </section>
   {:else}
   <p>Loading</p>
