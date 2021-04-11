@@ -99,18 +99,18 @@ import { space } from "svelte/internal";
   </nav>
 
   {#if isLoaded}
-  <section class="grid gap-8 grid-cols-6">
-    <div class="tile">
-      <h1>TWAP</h1>
-      <FormattedDecimal store={twap} decimals={4} />
+  <section class="flex">
+    <div class="flex flex-wrap w-1/3">
+      <div class="tile">
+        <h1>Spot price</h1>
+        <span>0.xxxx</span>
+      </div>
+      <div class="tile">
+        <h1>TWAP</h1>
+        <FormattedDecimal store={twap} decimals={4} />
+      </div>
     </div>
-    <div class="tile">
-      <h1>Spot price</h1>
-      <span>
-        0.xxxx
-      </span>
-    </div>
-    <div class="large-tile">
+    <div class="large-tile w-2/3">
       <h1>
         Next epoch
         {#if $twap.gt(1)}
@@ -137,7 +137,7 @@ import { space } from "svelte/internal";
     </div>
   </section>
 
-  <section class="grid gap-8 grid-cols-4">
+  <section class="grid gap-4 lg:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
     <!-- DSD -->
     <div class="column">
       <h3 class="subtitle">DSD</h3>

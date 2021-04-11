@@ -7,6 +7,10 @@
     @apply my-8;
   }
 
+  .tile {
+    @apply flex-grow min-w-max mx-4;
+  }
+
   .tile h1,
   .large-tile h1 {
     @apply text-xl font-bold;
@@ -18,6 +22,10 @@
 
   .tile span {
     @apply block text-3xl text-center py-4;
+  }
+
+  .large-tile {
+    @apply col-span-4;
   }
 
   .tag {
