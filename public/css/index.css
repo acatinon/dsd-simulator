@@ -2,11 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
+@layer base {
   section {
     @apply my-8;
   }
+}
 
+@variants dark {
+  .tag-red {
+    @apply bg-red-700;
+  }
+}
+
+@layer components {
   .tile {
     @apply flex-grow min-w-max mx-4;
   }
@@ -31,7 +39,6 @@
   .tag {
     @apply rounded font-normal text-base text-white px-1;
     background-image: linear-gradient(135deg, #3981e8, #66dbd8);
-    opacity: 0.8;
   }
 
   .tag-green {
@@ -51,7 +58,7 @@
   }
 
   .token-summary tbody {
-    @apply divide-y;
+    @apply divide-y divide-gray-500 divide-opacity-50;
   }
 
   .token-summary th {

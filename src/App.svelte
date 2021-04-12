@@ -84,14 +84,13 @@ import { space } from "svelte/internal";
       <p class="text-xl">DSD Simulator</p>
     </div>
     <div class="flex-grow">
-
     </div>
-    <div class="py-1">
+    <div class="py-1 inline-block align-baseline">
       {#if $web3Provider.isConnected}
-        <span class="tag is-primary is-light">{account}</span>
-        <span class="my-2" on:click={web3Provider.disconnect}>
-          <ion-icon name="log-out-outline" />
-        </span>
+        <span class="tag">{account}</span>
+        <button class="" on:click={web3Provider.disconnect}>
+          <ion-icon class="" name="log-out-outline" />
+        </button>
       {:else}
         <button class="button is-primary" on:click={connect}>Connect</button>
       {/if}
