@@ -33,7 +33,7 @@
   import Contraction from "./components/Contraction.svelte";
   import FormattedDecimal from "./components/FormattedDecimal.svelte";
 
-  const twap = writable(new BigNumber(1));
+  const twap = writable(new BigNumber(0));
   const epochNumber = writable("N/A");
   let dsd: DSD;
   let cdsd: CDSD;
@@ -123,7 +123,7 @@
     </div>
     <div class="tile">
       <h1>Spot price</h1>
-      <span>0.xxxx</span>
+      <FormattedDecimal store={dsdLp.price} decimals={4} />
     </div>
     <div class="tile">
       <h1>TWAP</h1>
@@ -203,6 +203,10 @@
           <tr>
             <th>Total bonded</th>
             <td class="has-text-right"><FormattedDecimal store={cdsd.totalBonded} /></td>
+          </tr>
+          <tr>
+            <th>Spot price</th>
+            <td class="has-text-right"><FormattedDecimal store={cdsdLp.price} decimals={4} /></td>
           </tr>
         </tbody>
       </table>

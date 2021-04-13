@@ -19,6 +19,7 @@ export interface CDSD extends Token {
 }
 
 export interface LpToken extends Token {
+  price: Writable<BigNumber>;
 }
 
 export async function buildDsdToken(dao: DaoContract, dsdContract: TokenContract): Promise<DSD> {
@@ -46,6 +47,7 @@ export async function buildLpToken(lpToken: LiquidityPoolContract, incentivePool
     lpToken.getReserves(),
   ]).then(([totalBondedLpNumber, totalPoolSupplyNumber, reservesNumber]) => {
     return {
+      price: writable(reservesNumber[0].dividedBy(reservesNumber[1])),
       totalSupply: writable(reservesNumber[1]),
       totalBonded: writable(totalBondedLpNumber.multipliedBy(reservesNumber[1]).dividedBy(totalPoolSupplyNumber))
     }
