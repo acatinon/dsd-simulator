@@ -1,6 +1,8 @@
 import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
 
+import type { Epoch } from "./epoch";
+
 const decimalDivisor = new BigNumber(10).pow(18);
 
 const daoAddr = "0x6Bf977ED1A09214E6209F4EA5f525261f1A2690a";
@@ -12,6 +14,7 @@ const dsdPoolIncentivationAddr = "0xf929fc6eC25850ce00e457c4F28cDE88A94415D8";
 const cdsdPoolIncentivationAddr = "0x170cec2070399B85363b788Af2FB059DB8Ef8aeD";
 
 const daoAbi = [
+    "function epoch() public view returns (uint256)",
     "function totalBonded() public view returns (uint256)",
     "function totalCDSDBonded() public view returns (uint256)",
     "function totalCDSDEarnable() public view returns (uint256)",
@@ -129,14 +132,12 @@ export class LiquidityPoolContract extends Contract {
         super(ethersProvider, addr, liquidityPoolAbi)
     }
 
-    public async getTwap(): Promise<BigNumber> {
+    public async getTwap(epoch: Epoch): Promise<BigNumber> {
 
-        const epochStartResponse = await fetch("/epoch.json");
-        const epochStart = await epochStartResponse.json();    
-        const epochStartCumulativePrice = new BigNumber(epochStart.priceCumulative);
+        const epochStartCumulativePrice = new BigNumber(epoch.priceCumulative);
         const reserves = await this.getReserves();
     
-        const timeElapsed = new BigNumber(reserves[2].toString()).minus(epochStart.timestamp);
+        const timeElapsed = new BigNumber(reserves[2].toString()).minus(epoch.timestamp);
     
         if (timeElapsed.eq(0))
         {

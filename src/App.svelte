@@ -6,6 +6,7 @@
 
   import { web3 } from "./utils/web3";
   import { darkTheme } from "./utils/theme";
+  import { getEpoch } from "./utils/epoch";
   import {
     DaoContract,
     DsdTokenContract,
@@ -33,6 +34,7 @@
   import FormattedDecimal from "./components/FormattedDecimal.svelte";
 
   const twap = writable(new BigNumber(1));
+  const epochNumber = writable("N/A");
   let dsd: DSD;
   let cdsd: CDSD;
   let dsdLp: LpToken;
@@ -62,11 +64,15 @@
     let cdsdIncentivationContract = new CdsdPoolIncentivationContract(ethersProvider);
 
     ethersProvider.listAccounts().then(async (accounts: string[]) => {
+      const epoch = await getEpoch();
+
+      epochNumber.set(epoch.number);
+
       if (accounts.length > 0) {
         account = accounts[0];
       }
 
-      dsdLpContract.getTwap().then((twapNumber) => {
+      dsdLpContract.getTwap(epoch).then((twapNumber) => {
         twap.set(twapNumber);
       });
 
@@ -110,18 +116,20 @@
   </nav>
 
   {#if isLoaded}
-  <section class="flex">
-    <div class="flex flex-wrap w-1/3">
-      <div class="tile">
-        <h1>Spot price</h1>
-        <span>0.xxxx</span>
-      </div>
-      <div class="tile">
-        <h1>TWAP</h1>
-        <FormattedDecimal store={twap} decimals={4} />
-      </div>
+  <section class="grid gap-4 lg:gap-8 grid-cols-3 lg:grid-cols-6">
+    <div class="tile">
+      <h1>Epoch</h1>
+      <span>{$epochNumber}</span>
     </div>
-    <div class="large-tile w-2/3">
+    <div class="tile">
+      <h1>Spot price</h1>
+      <span>0.xxxx</span>
+    </div>
+    <div class="tile">
+      <h1>TWAP</h1>
+      <FormattedDecimal store={twap} decimals={4} />
+    </div>
+    <div class="large-tile col-span-3">
       <h1>
         Next epoch
         {#if $twap.gt(1)}
@@ -150,7 +158,7 @@
 
   <section class="grid gap-4 lg:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
     <!-- DSD -->
-    <div class="column">
+    <div>
       <h3 class="subtitle">DSD</h3>
       <table class="token-summary">
         <tbody>
@@ -167,7 +175,7 @@
     </div>
 
     <!-- DSD LP -->
-    <div class="column">
+    <div>
       <h3 class="subtitle">DSD LP</h3>
       <table class="token-summary">
         <tbody>
@@ -184,7 +192,7 @@
     </div>
 
     <!-- CDSD -->
-    <div class="column">
+    <div>
       <h3 class="subtitle">CDSD</h3>
       <table class="token-summary">
         <tbody>
@@ -201,7 +209,7 @@
     </div>
 
     <!-- CDSD LP -->
-    <div class="column">
+    <div>
       <h3 class="subtitle">CDSD LP</h3>
       <table class="token-summary">
         <tbody>
