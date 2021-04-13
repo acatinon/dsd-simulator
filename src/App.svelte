@@ -5,6 +5,7 @@
   import BigNumber from "bignumber.js";
 
   import { web3 } from "./utils/web3";
+  import { darkTheme } from "./utils/theme";
   import {
     DaoContract,
     DsdTokenContract,
@@ -30,7 +31,6 @@
   import Expansion from "./components/Expansion.svelte";
   import Contraction from "./components/Contraction.svelte";
   import FormattedDecimal from "./components/FormattedDecimal.svelte";
-import { space } from "svelte/internal";
 
   const twap = writable(new BigNumber(1));
   let dsd: DSD;
@@ -40,6 +40,7 @@ import { space } from "svelte/internal";
   let isLoaded = false;
 
   const web3Provider = web3();
+  const isDark = darkTheme();
 
   let account = "";
 
@@ -85,16 +86,27 @@ import { space } from "svelte/internal";
     </div>
     <div class="flex-grow">
     </div>
-    <div class="py-1 inline-block align-baseline">
-      {#if $web3Provider.isConnected}
-        <span class="tag">{account}</span>
-        <button class="" on:click={web3Provider.disconnect}>
-          <ion-icon class="" name="log-out-outline" />
-        </button>
-      {:else}
-        <button class="button is-primary" on:click={connect}>Connect</button>
-      {/if}
+    <div class="p-1">
+      <button on:click={isDark.toggle}>
+        {#if $isDark}
+          <ion-icon name="sunny-outline" />
+        {:else}
+          <ion-icon name="moon-outline" />
+        {/if}
+      </button>
     </div>
+    {#if $web3Provider.isConnected}
+      <div class="p-1">
+        <span class="tag">{account}</span>
+      </div>
+      <div class="p-1">
+      <button  on:click={web3Provider.disconnect}>
+        <ion-icon name="log-out-outline" />
+      </button>
+      </div>
+    {:else}
+      <button class="p-1" on:click={connect}>Connect</button>
+    {/if}
   </nav>
 
   {#if isLoaded}

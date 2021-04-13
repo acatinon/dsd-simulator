@@ -6,11 +6,9 @@
   section {
     @apply my-8;
   }
-}
 
-@variants dark {
-  .tag-red {
-    @apply bg-red-700;
+  ion-icon {
+    font-size: 24px;
   }
 }
 
@@ -41,18 +39,6 @@
     background-image: linear-gradient(135deg, #3981e8, #66dbd8);
   }
 
-  .tag-green {
-    @apply bg-green-400 text-green-50;
-    background-image: none;
-    opacity: 1;
-  }
-
-  .tag-red {
-    @apply bg-red-400 text-red-50;
-    background-image: none;
-    opacity: 1;
-  }
-
   .token-summary {
     @apply w-full;
   }
@@ -67,5 +53,23 @@
 
   .token-summary td {
     @apply text-right;
+  }
+}
+
+@layer utilities {
+  .tag-green {
+    @apply bg-none opacity-100 bg-green-200 text-green-600;
+  }
+
+  .tag-red {
+    @apply bg-none opacity-100 bg-red-200 text-red-600;
+  }
+
+  .dark .tag-green {
+    @apply bg-green-700 text-green-200;
+  }
+
+  .dark .tag-red {
+    @apply bg-red-700 text-red-200;
   }
 }
