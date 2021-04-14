@@ -21,6 +21,4 @@
   );
 </script>
 
-<p>Contraction {$twap}</p>
-
-<p>CPool rewards <FormattedDecimal value={$cPoolRewardAmount} /> CDSD</p>
+<p><FormattedDecimal value={$cPoolRewardAmount} /> CDSD will be sent to the USDC-CDSD pool liquidity providers.</p>

@@ -19,7 +19,7 @@
 
   .tile h1,
   .large-tile h1 {
-    @apply text-xl font-bold;
+    @apply text-3xl font-bold;
   }
 
   .tile h1 {
@@ -32,6 +32,10 @@
 
   .large-tile {
     @apply col-span-4;
+  }
+
+  .large-tile p {
+    @apply text-xl leading-relaxed;
   }
 
   .tag {

@@ -133,10 +133,10 @@
       <h1>
         Next epoch
         {#if $twap.gt(1)}
-          <span class="tag tag-green">Expansion</span>
+          <span class="tag tag-green relative -top-0.5">Expansion</span>
         {/if}
         {#if $twap.lt(1)}
-          <span class="tag tag-red">Contraction</span>
+          <span class="tag tag-red relative -top-0.5">Contraction</span>
         {/if}
       </h1>
   
