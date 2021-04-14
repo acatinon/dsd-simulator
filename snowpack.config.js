@@ -3,6 +3,12 @@ module.exports = {
     public: '/',
     src: '/dist',
   },
+  optimize: {
+    bundle: true,
+  },
+  buildOptions: {
+    metaUrlPath: `dist`,
+  },
   plugins: [
     '@snowpack/plugin-svelte',
     '@snowpack/plugin-typescript',

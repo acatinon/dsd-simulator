@@ -5,7 +5,7 @@ export interface Epoch {
 }
 
 export async function getEpoch(): Promise<Epoch> {
-    const epochResponse = await fetch("/epoch.json");
+    const epochResponse = await fetch("epoch.json");
     const epoch = await epochResponse.json();
 
     return epoch as Epoch;
