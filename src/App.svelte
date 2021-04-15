@@ -69,7 +69,7 @@
       epochNumber.set(epoch.number);
 
       if (accounts.length > 0) {
-        account = accounts[0];
+        account = accounts[0].substring(0, 10);
       }
 
       dsdLpContract.getTwap(epoch).then((twapNumber) => {
@@ -103,7 +103,7 @@
     </div>
     {#if $web3Provider.isConnected}
       <div class="p-1">
-        <span class="tag">{account}</span>
+        <span class="tag">{account}&hellip;</span>
       </div>
       <div class="p-1">
       <button  on:click={web3Provider.disconnect}>
