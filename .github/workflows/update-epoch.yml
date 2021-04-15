@@ -3,7 +3,7 @@ on:
   schedule:
     - cron: '0 1/2 * * *'
 jobs:
-  deploy:
+  update-epoch:
     runs-on: ubuntu-latest
     environment: main
     steps:

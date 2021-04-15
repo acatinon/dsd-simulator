@@ -76,10 +76,10 @@
         twap.set(twapNumber);
       });
 
-      dsd = await buildDsdToken(dao, dsdContract);
-      cdsd = await buildCdsdToken(dao, cdsdContract);
-      dsdLp = await buildLpToken(dsdLpContract, dsdncentivationContract);
-      cdsdLp = await buildLpToken(cdsdLpContract, cdsdIncentivationContract);
+      dsd = await buildDsdToken(dao, dsdContract, accounts[0]);
+      cdsd = await buildCdsdToken(dao, cdsdContract, accounts[0]);
+      dsdLp = await buildLpToken(dsdLpContract, dsdncentivationContract, accounts[0]);
+      cdsdLp = await buildLpToken(cdsdLpContract, cdsdIncentivationContract, accounts[0]);
       isLoaded = true;
     });
   };
@@ -170,6 +170,10 @@
             <th>Total bonded</th>
             <td class="has-text-right"><FormattedDecimal store={dsd.totalBonded} /></td>
           </tr>
+          <tr>
+            <th>Wallet</th>
+            <td class="has-text-right"><FormattedDecimal store={dsd.wallet} /></td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -205,8 +209,16 @@
             <td class="has-text-right"><FormattedDecimal store={cdsd.totalBonded} /></td>
           </tr>
           <tr>
+            <th>Total earnable</th>
+            <td class="has-text-right"><FormattedDecimal store={cdsd.totalEarnable} /></td>
+          </tr>
+          <tr>
             <th>Spot price</th>
             <td class="has-text-right"><FormattedDecimal store={cdsdLp.price} decimals={4} /></td>
+          </tr>
+          <tr>
+            <th>Wallet</th>
+            <td class="has-text-right"><FormattedDecimal store={cdsd.wallet} /></td>
           </tr>
         </tbody>
       </table>

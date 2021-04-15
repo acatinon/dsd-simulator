@@ -23,7 +23,8 @@ const daoAbi = [
 ];
 
 const tokenAbi = [
-    "function totalSupply() external view returns (uint256)"
+    "function totalSupply() external view returns (uint256)",
+    "function balanceOf(address account) external view returns (uint256)"
 ];
 
 const liquidityPoolAbi = [
@@ -87,10 +88,11 @@ export class DaoContract extends Contract {
 
 export abstract class TokenContract extends Contract {
 
-    constructor(ethersProvider: ethers.providers.Web3Provider, addr: string)
+    constructor(ethersProvider: ethers.providers.Web3Provider, addr: string, additionalAbi: Array<string> = [])
     {
-        super(ethersProvider, addr, tokenAbi)
+        super(ethersProvider, addr, [...tokenAbi, ...additionalAbi])
     }
+
 
     public async getTotalSupply(): Promise<BigNumber> {
         const totalSupply = await this.ethersContract.totalSupply();
@@ -98,7 +100,11 @@ export abstract class TokenContract extends Contract {
         return new BigNumber(totalSupply.toString()).dividedBy(decimalDivisor);
     }
 
-    public abstract getTotalBonded(dao: DaoContract): Promise<BigNumber>;
+    public async getBalance(account: string): Promise<BigNumber> {
+        const balance = await this.ethersContract.balanceOf(account);
+    
+        return new BigNumber(balance.toString()).dividedBy(decimalDivisor);
+    }
 }
 
 export class DsdTokenContract extends TokenContract {
@@ -106,10 +112,6 @@ export class DsdTokenContract extends TokenContract {
     constructor(ethersProvider: ethers.providers.Web3Provider)
     {
         super(ethersProvider, dsdTokenAddr)
-    }
-
-    public async getTotalBonded(dao: DaoContract): Promise<BigNumber> {
-        return dao.getTotalDsdBonded();
     }
 }
 
@@ -119,13 +121,9 @@ export class CdsdTokenContract extends TokenContract {
     {
         super(ethersProvider, cdsdTokenAddr)
     }
-
-    public async getTotalBonded(dao: DaoContract): Promise<BigNumber> {
-        return dao.getTotalCdsdBonded();
-    }
 }
 
-export class LiquidityPoolContract extends Contract {
+export class LiquidityPoolContract extends TokenContract {
 
     constructor(ethersProvider: ethers.providers.Web3Provider, addr: string)
     {
