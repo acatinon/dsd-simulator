@@ -31594,6 +31594,7 @@ function create_if_block_5(ctx) {
   let span;
   let t0;
   let t1;
+  let t2;
   let div1;
   let button;
   let mounted;
@@ -31603,7 +31604,8 @@ function create_if_block_5(ctx) {
       div0 = element("div");
       span = element("span");
       t0 = text(ctx[5]);
-      t1 = space();
+      t1 = text("…");
+      t2 = space();
       div1 = element("div");
       button = element("button");
       button.innerHTML = `<ion-icon name="log-out-outline"></ion-icon>`;
@@ -31615,7 +31617,8 @@ function create_if_block_5(ctx) {
       insert(target, div0, anchor);
       append(div0, span);
       append(span, t0);
-      insert(target, t1, anchor);
+      append(span, t1);
+      insert(target, t2, anchor);
       insert(target, div1, anchor);
       append(div1, button);
       if (!mounted) {
@@ -31631,7 +31634,7 @@ function create_if_block_5(ctx) {
       if (detaching)
         detach(div0);
       if (detaching)
-        detach(t1);
+        detach(t2);
       if (detaching)
         detach(div1);
       mounted = false;
@@ -32559,7 +32562,7 @@ function instance4($$self, $$props, $$invalidate) {
       const epoch = yield getEpoch();
       epochNumber.set(epoch.number);
       if (accounts.length > 0) {
-        $$invalidate(5, account = accounts[0]);
+        $$invalidate(5, account = accounts[0].substring(0, 10));
       }
       dsdLpContract.getTwap(epoch).then((twapNumber) => {
         twap.set(twapNumber);
