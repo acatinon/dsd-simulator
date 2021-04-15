@@ -30,6 +30,8 @@ const { ethers } = require("ethers");
         timestamp: reserves[2]
     };
 
+    process.env.EPOCH = json.number;
+
     fs.writeFile('public/epoch.json', JSON.stringify(json), function (err) {
         if (err) throw err;
     });
