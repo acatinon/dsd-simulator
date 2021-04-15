@@ -31060,7 +31060,8 @@ var daoAbi = [
   "function totalCDSDRedeemable() public view returns (uint256)"
 ];
 var tokenAbi = [
-  "function totalSupply() external view returns (uint256)"
+  "function totalSupply() external view returns (uint256)",
+  "function balanceOf(address account) external view returns (uint256)"
 ];
 var liquidityPoolAbi = [
   "function price0CumulativeLast() external view returns (uint)",
@@ -31102,31 +31103,29 @@ var DaoContract = class extends Contract2 {
   }
 };
 var TokenContract = class extends Contract2 {
-  constructor(ethersProvider, addr) {
-    super(ethersProvider, addr, tokenAbi);
+  constructor(ethersProvider, addr, additionalAbi = []) {
+    super(ethersProvider, addr, [...tokenAbi, ...additionalAbi]);
   }
   async getTotalSupply() {
     const totalSupply = await this.ethersContract.totalSupply();
     return new bignumberjs_default(totalSupply.toString()).dividedBy(decimalDivisor);
+  }
+  async getBalance(account) {
+    const balance = await this.ethersContract.balanceOf(account);
+    return new bignumberjs_default(balance.toString()).dividedBy(decimalDivisor);
   }
 };
 var DsdTokenContract = class extends TokenContract {
   constructor(ethersProvider) {
     super(ethersProvider, dsdTokenAddr);
   }
-  async getTotalBonded(dao) {
-    return dao.getTotalDsdBonded();
-  }
 };
 var CdsdTokenContract = class extends TokenContract {
   constructor(ethersProvider) {
     super(ethersProvider, cdsdTokenAddr);
   }
-  async getTotalBonded(dao) {
-    return dao.getTotalCdsdBonded();
-  }
 };
-var LiquidityPoolContract = class extends Contract2 {
+var LiquidityPoolContract = class extends TokenContract {
   constructor(ethersProvider, addr) {
     super(ethersProvider, addr, liquidityPoolAbi);
   }
@@ -31186,31 +31185,35 @@ var CdsdPoolIncentivationContract = class extends PoolIncentivationContract {
 };
 
 // docs/dist/utils/tokens.js
-async function buildDsdToken(dao, dsdContract) {
+async function buildDsdToken(dao, dsdContract, account) {
   return {
     totalSupply: writable(await dsdContract.getTotalSupply()),
-    totalBonded: writable(await dsdContract.getTotalBonded(dao))
+    totalBonded: writable(await dao.getTotalDsdBonded()),
+    wallet: writable(await dsdContract.getBalance(account))
   };
 }
-async function buildCdsdToken(dao, cdsdContract) {
+async function buildCdsdToken(dao, cdsdContract, account) {
   return {
     totalSupply: writable(await cdsdContract.getTotalSupply()),
-    totalBonded: writable(await cdsdContract.getTotalBonded(dao)),
+    totalBonded: writable(await dao.getTotalCdsdBonded()),
     totalEarnable: writable(await dao.getTotalCdsdEarnable()),
     totalEarned: writable(await dao.getTotalCdsdEarned()),
-    totalRedeemable: writable(await dao.getTotalCdsdRedeemable())
+    totalRedeemable: writable(await dao.getTotalCdsdRedeemable()),
+    wallet: writable(await cdsdContract.getBalance(account))
   };
 }
-async function buildLpToken(lpToken, incentivePool) {
+async function buildLpToken(lpToken, incentivePool, account) {
   return Promise.all([
     incentivePool.getTotalBonded(),
     lpToken.getTotalSupply(),
-    lpToken.getReserves()
-  ]).then(([totalBondedLpNumber, totalPoolSupplyNumber, reservesNumber]) => {
+    lpToken.getReserves(),
+    lpToken.getBalance(account)
+  ]).then(([totalBondedLpNumber, totalPoolSupplyNumber, reservesNumber, balance]) => {
     return {
-      price: writable(reservesNumber[0].dividedBy(reservesNumber[1])),
       totalSupply: writable(reservesNumber[1]),
-      totalBonded: writable(totalBondedLpNumber.multipliedBy(reservesNumber[1]).dividedBy(totalPoolSupplyNumber))
+      totalBonded: writable(totalBondedLpNumber.multipliedBy(reservesNumber[1]).dividedBy(totalPoolSupplyNumber)),
+      price: writable(reservesNumber[0].dividedBy(reservesNumber[1])),
+      wallet: writable(balance)
     };
   });
 }
@@ -31709,34 +31712,34 @@ function create_if_block(ctx) {
   let td1;
   let formatteddecimal3;
   let t21;
-  let div5;
-  let h31;
-  let t23;
-  let table1;
-  let tbody1;
   let tr2;
   let th2;
-  let t25;
+  let t23;
   let td2;
   let formatteddecimal4;
+  let t24;
+  let div5;
+  let h31;
   let t26;
+  let table1;
+  let tbody1;
   let tr3;
   let th3;
   let t28;
   let td3;
   let formatteddecimal5;
   let t29;
-  let div6;
-  let h32;
-  let t31;
-  let table2;
-  let tbody2;
   let tr4;
   let th4;
-  let t33;
+  let t31;
   let td4;
   let formatteddecimal6;
+  let t32;
+  let div6;
+  let h32;
   let t34;
+  let table2;
+  let tbody2;
   let tr5;
   let th5;
   let t36;
@@ -31749,22 +31752,40 @@ function create_if_block(ctx) {
   let td6;
   let formatteddecimal8;
   let t40;
-  let div7;
-  let h33;
-  let t42;
-  let table3;
-  let tbody3;
   let tr7;
   let th7;
-  let t44;
+  let t42;
   let td7;
   let formatteddecimal9;
-  let t45;
+  let t43;
   let tr8;
   let th8;
-  let t47;
+  let t45;
   let td8;
   let formatteddecimal10;
+  let t46;
+  let tr9;
+  let th9;
+  let t48;
+  let td9;
+  let formatteddecimal11;
+  let t49;
+  let div7;
+  let h33;
+  let t51;
+  let table3;
+  let tbody3;
+  let tr10;
+  let th10;
+  let t53;
+  let td10;
+  let formatteddecimal12;
+  let t54;
+  let tr11;
+  let th11;
+  let t56;
+  let td11;
+  let formatteddecimal13;
   let current;
   formatteddecimal0 = new FormattedDecimal_svelte_default({
     props: {
@@ -31798,28 +31819,33 @@ function create_if_block(ctx) {
   formatteddecimal3 = new FormattedDecimal_svelte_default({
     props: {store: ctx[0].totalBonded}
   });
-  formatteddecimal4 = new FormattedDecimal_svelte_default({
+  formatteddecimal4 = new FormattedDecimal_svelte_default({props: {store: ctx[0].wallet}});
+  formatteddecimal5 = new FormattedDecimal_svelte_default({
     props: {store: ctx[2].totalSupply}
   });
-  formatteddecimal5 = new FormattedDecimal_svelte_default({
+  formatteddecimal6 = new FormattedDecimal_svelte_default({
     props: {store: ctx[2].totalBonded}
   });
-  formatteddecimal6 = new FormattedDecimal_svelte_default({
+  formatteddecimal7 = new FormattedDecimal_svelte_default({
     props: {store: ctx[1].totalSupply}
   });
-  formatteddecimal7 = new FormattedDecimal_svelte_default({
+  formatteddecimal8 = new FormattedDecimal_svelte_default({
     props: {store: ctx[1].totalBonded}
   });
-  formatteddecimal8 = new FormattedDecimal_svelte_default({
+  formatteddecimal9 = new FormattedDecimal_svelte_default({
+    props: {store: ctx[1].totalEarnable}
+  });
+  formatteddecimal10 = new FormattedDecimal_svelte_default({
     props: {
       store: ctx[3].price,
       decimals: 4
     }
   });
-  formatteddecimal9 = new FormattedDecimal_svelte_default({
+  formatteddecimal11 = new FormattedDecimal_svelte_default({props: {store: ctx[1].wallet}});
+  formatteddecimal12 = new FormattedDecimal_svelte_default({
     props: {store: ctx[3].totalSupply}
   });
-  formatteddecimal10 = new FormattedDecimal_svelte_default({
+  formatteddecimal13 = new FormattedDecimal_svelte_default({
     props: {store: ctx[3].totalBonded}
   });
   return {
@@ -31876,72 +31902,93 @@ function create_if_block(ctx) {
       td1 = element("td");
       create_component(formatteddecimal3.$$.fragment);
       t21 = space();
+      tr2 = element("tr");
+      th2 = element("th");
+      th2.textContent = "Wallet";
+      t23 = space();
+      td2 = element("td");
+      create_component(formatteddecimal4.$$.fragment);
+      t24 = space();
       div5 = element("div");
       h31 = element("h3");
       h31.textContent = "DSD LP";
-      t23 = space();
+      t26 = space();
       table1 = element("table");
       tbody1 = element("tbody");
-      tr2 = element("tr");
-      th2 = element("th");
-      th2.textContent = "Total supply";
-      t25 = space();
-      td2 = element("td");
-      create_component(formatteddecimal4.$$.fragment);
-      t26 = space();
       tr3 = element("tr");
       th3 = element("th");
-      th3.textContent = "Total bonded";
+      th3.textContent = "Total supply";
       t28 = space();
       td3 = element("td");
       create_component(formatteddecimal5.$$.fragment);
       t29 = space();
+      tr4 = element("tr");
+      th4 = element("th");
+      th4.textContent = "Total bonded";
+      t31 = space();
+      td4 = element("td");
+      create_component(formatteddecimal6.$$.fragment);
+      t32 = space();
       div6 = element("div");
       h32 = element("h3");
       h32.textContent = "CDSD";
-      t31 = space();
+      t34 = space();
       table2 = element("table");
       tbody2 = element("tbody");
-      tr4 = element("tr");
-      th4 = element("th");
-      th4.textContent = "Total supply";
-      t33 = space();
-      td4 = element("td");
-      create_component(formatteddecimal6.$$.fragment);
-      t34 = space();
       tr5 = element("tr");
       th5 = element("th");
-      th5.textContent = "Total bonded";
+      th5.textContent = "Total supply";
       t36 = space();
       td5 = element("td");
       create_component(formatteddecimal7.$$.fragment);
       t37 = space();
       tr6 = element("tr");
       th6 = element("th");
-      th6.textContent = "Spot price";
+      th6.textContent = "Total bonded";
       t39 = space();
       td6 = element("td");
       create_component(formatteddecimal8.$$.fragment);
       t40 = space();
+      tr7 = element("tr");
+      th7 = element("th");
+      th7.textContent = "Total earnable";
+      t42 = space();
+      td7 = element("td");
+      create_component(formatteddecimal9.$$.fragment);
+      t43 = space();
+      tr8 = element("tr");
+      th8 = element("th");
+      th8.textContent = "Spot price";
+      t45 = space();
+      td8 = element("td");
+      create_component(formatteddecimal10.$$.fragment);
+      t46 = space();
+      tr9 = element("tr");
+      th9 = element("th");
+      th9.textContent = "Wallet";
+      t48 = space();
+      td9 = element("td");
+      create_component(formatteddecimal11.$$.fragment);
+      t49 = space();
       div7 = element("div");
       h33 = element("h3");
       h33.textContent = "CDSD LP";
-      t42 = space();
+      t51 = space();
       table3 = element("table");
       tbody3 = element("tbody");
-      tr7 = element("tr");
-      th7 = element("th");
-      th7.textContent = "Total supply";
-      t44 = space();
-      td7 = element("td");
-      create_component(formatteddecimal9.$$.fragment);
-      t45 = space();
-      tr8 = element("tr");
-      th8 = element("th");
-      th8.textContent = "Total bonded";
-      t47 = space();
-      td8 = element("td");
-      create_component(formatteddecimal10.$$.fragment);
+      tr10 = element("tr");
+      th10 = element("th");
+      th10.textContent = "Total supply";
+      t53 = space();
+      td10 = element("td");
+      create_component(formatteddecimal12.$$.fragment);
+      t54 = space();
+      tr11 = element("tr");
+      th11 = element("th");
+      th11.textContent = "Total bonded";
+      t56 = space();
+      td11 = element("td");
+      create_component(formatteddecimal13.$$.fragment);
       attr(div0, "class", "tile");
       attr(div1, "class", "tile");
       attr(div2, "class", "tile");
@@ -31950,19 +31997,22 @@ function create_if_block(ctx) {
       attr(h30, "class", "subtitle");
       attr(td0, "class", "has-text-right");
       attr(td1, "class", "has-text-right");
+      attr(td2, "class", "has-text-right");
       attr(table0, "class", "token-summary");
       attr(h31, "class", "subtitle");
-      attr(td2, "class", "has-text-right");
       attr(td3, "class", "has-text-right");
+      attr(td4, "class", "has-text-right");
       attr(table1, "class", "token-summary");
       attr(h32, "class", "subtitle");
-      attr(td4, "class", "has-text-right");
       attr(td5, "class", "has-text-right");
       attr(td6, "class", "has-text-right");
-      attr(table2, "class", "token-summary");
-      attr(h33, "class", "subtitle");
       attr(td7, "class", "has-text-right");
       attr(td8, "class", "has-text-right");
+      attr(td9, "class", "has-text-right");
+      attr(table2, "class", "token-summary");
+      attr(h33, "class", "subtitle");
+      attr(td10, "class", "has-text-right");
+      attr(td11, "class", "has-text-right");
       attr(table3, "class", "token-summary");
       attr(section1, "class", "grid gap-4 lg:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-4");
     },
@@ -32012,35 +32062,35 @@ function create_if_block(ctx) {
       append(tr1, t20);
       append(tr1, td1);
       mount_component(formatteddecimal3, td1, null);
-      append(section1, t21);
-      append(section1, div5);
-      append(div5, h31);
-      append(div5, t23);
-      append(div5, table1);
-      append(table1, tbody1);
-      append(tbody1, tr2);
+      append(tbody0, t21);
+      append(tbody0, tr2);
       append(tr2, th2);
-      append(tr2, t25);
+      append(tr2, t23);
       append(tr2, td2);
       mount_component(formatteddecimal4, td2, null);
-      append(tbody1, t26);
+      append(section1, t24);
+      append(section1, div5);
+      append(div5, h31);
+      append(div5, t26);
+      append(div5, table1);
+      append(table1, tbody1);
       append(tbody1, tr3);
       append(tr3, th3);
       append(tr3, t28);
       append(tr3, td3);
       mount_component(formatteddecimal5, td3, null);
-      append(section1, t29);
-      append(section1, div6);
-      append(div6, h32);
-      append(div6, t31);
-      append(div6, table2);
-      append(table2, tbody2);
-      append(tbody2, tr4);
+      append(tbody1, t29);
+      append(tbody1, tr4);
       append(tr4, th4);
-      append(tr4, t33);
+      append(tr4, t31);
       append(tr4, td4);
       mount_component(formatteddecimal6, td4, null);
-      append(tbody2, t34);
+      append(section1, t32);
+      append(section1, div6);
+      append(div6, h32);
+      append(div6, t34);
+      append(div6, table2);
+      append(table2, tbody2);
       append(tbody2, tr5);
       append(tr5, th5);
       append(tr5, t36);
@@ -32052,23 +32102,41 @@ function create_if_block(ctx) {
       append(tr6, t39);
       append(tr6, td6);
       mount_component(formatteddecimal8, td6, null);
-      append(section1, t40);
-      append(section1, div7);
-      append(div7, h33);
-      append(div7, t42);
-      append(div7, table3);
-      append(table3, tbody3);
-      append(tbody3, tr7);
+      append(tbody2, t40);
+      append(tbody2, tr7);
       append(tr7, th7);
-      append(tr7, t44);
+      append(tr7, t42);
       append(tr7, td7);
       mount_component(formatteddecimal9, td7, null);
-      append(tbody3, t45);
-      append(tbody3, tr8);
+      append(tbody2, t43);
+      append(tbody2, tr8);
       append(tr8, th8);
-      append(tr8, t47);
+      append(tr8, t45);
       append(tr8, td8);
       mount_component(formatteddecimal10, td8, null);
+      append(tbody2, t46);
+      append(tbody2, tr9);
+      append(tr9, th9);
+      append(tr9, t48);
+      append(tr9, td9);
+      mount_component(formatteddecimal11, td9, null);
+      append(section1, t49);
+      append(section1, div7);
+      append(div7, h33);
+      append(div7, t51);
+      append(div7, table3);
+      append(table3, tbody3);
+      append(tbody3, tr10);
+      append(tr10, th10);
+      append(tr10, t53);
+      append(tr10, td10);
+      mount_component(formatteddecimal12, td10, null);
+      append(tbody3, t54);
+      append(tbody3, tr11);
+      append(tr11, th11);
+      append(tr11, t56);
+      append(tr11, td11);
+      mount_component(formatteddecimal13, td11, null);
       current = true;
     },
     p(ctx2, dirty) {
@@ -32133,33 +32201,45 @@ function create_if_block(ctx) {
         formatteddecimal3_changes.store = ctx2[0].totalBonded;
       formatteddecimal3.$set(formatteddecimal3_changes);
       const formatteddecimal4_changes = {};
-      if (dirty & 4)
-        formatteddecimal4_changes.store = ctx2[2].totalSupply;
+      if (dirty & 1)
+        formatteddecimal4_changes.store = ctx2[0].wallet;
       formatteddecimal4.$set(formatteddecimal4_changes);
       const formatteddecimal5_changes = {};
       if (dirty & 4)
-        formatteddecimal5_changes.store = ctx2[2].totalBonded;
+        formatteddecimal5_changes.store = ctx2[2].totalSupply;
       formatteddecimal5.$set(formatteddecimal5_changes);
       const formatteddecimal6_changes = {};
-      if (dirty & 2)
-        formatteddecimal6_changes.store = ctx2[1].totalSupply;
+      if (dirty & 4)
+        formatteddecimal6_changes.store = ctx2[2].totalBonded;
       formatteddecimal6.$set(formatteddecimal6_changes);
       const formatteddecimal7_changes = {};
       if (dirty & 2)
-        formatteddecimal7_changes.store = ctx2[1].totalBonded;
+        formatteddecimal7_changes.store = ctx2[1].totalSupply;
       formatteddecimal7.$set(formatteddecimal7_changes);
       const formatteddecimal8_changes = {};
-      if (dirty & 8)
-        formatteddecimal8_changes.store = ctx2[3].price;
+      if (dirty & 2)
+        formatteddecimal8_changes.store = ctx2[1].totalBonded;
       formatteddecimal8.$set(formatteddecimal8_changes);
       const formatteddecimal9_changes = {};
-      if (dirty & 8)
-        formatteddecimal9_changes.store = ctx2[3].totalSupply;
+      if (dirty & 2)
+        formatteddecimal9_changes.store = ctx2[1].totalEarnable;
       formatteddecimal9.$set(formatteddecimal9_changes);
       const formatteddecimal10_changes = {};
       if (dirty & 8)
-        formatteddecimal10_changes.store = ctx2[3].totalBonded;
+        formatteddecimal10_changes.store = ctx2[3].price;
       formatteddecimal10.$set(formatteddecimal10_changes);
+      const formatteddecimal11_changes = {};
+      if (dirty & 2)
+        formatteddecimal11_changes.store = ctx2[1].wallet;
+      formatteddecimal11.$set(formatteddecimal11_changes);
+      const formatteddecimal12_changes = {};
+      if (dirty & 8)
+        formatteddecimal12_changes.store = ctx2[3].totalSupply;
+      formatteddecimal12.$set(formatteddecimal12_changes);
+      const formatteddecimal13_changes = {};
+      if (dirty & 8)
+        formatteddecimal13_changes.store = ctx2[3].totalBonded;
+      formatteddecimal13.$set(formatteddecimal13_changes);
     },
     i(local) {
       if (current)
@@ -32176,6 +32256,9 @@ function create_if_block(ctx) {
       transition_in(formatteddecimal8.$$.fragment, local);
       transition_in(formatteddecimal9.$$.fragment, local);
       transition_in(formatteddecimal10.$$.fragment, local);
+      transition_in(formatteddecimal11.$$.fragment, local);
+      transition_in(formatteddecimal12.$$.fragment, local);
+      transition_in(formatteddecimal13.$$.fragment, local);
       current = true;
     },
     o(local) {
@@ -32191,6 +32274,9 @@ function create_if_block(ctx) {
       transition_out(formatteddecimal8.$$.fragment, local);
       transition_out(formatteddecimal9.$$.fragment, local);
       transition_out(formatteddecimal10.$$.fragment, local);
+      transition_out(formatteddecimal11.$$.fragment, local);
+      transition_out(formatteddecimal12.$$.fragment, local);
+      transition_out(formatteddecimal13.$$.fragment, local);
       current = false;
     },
     d(detaching) {
@@ -32216,6 +32302,9 @@ function create_if_block(ctx) {
       destroy_component(formatteddecimal8);
       destroy_component(formatteddecimal9);
       destroy_component(formatteddecimal10);
+      destroy_component(formatteddecimal11);
+      destroy_component(formatteddecimal12);
+      destroy_component(formatteddecimal13);
     }
   };
 }
@@ -32567,10 +32656,10 @@ function instance4($$self, $$props, $$invalidate) {
       dsdLpContract.getTwap(epoch).then((twapNumber) => {
         twap.set(twapNumber);
       });
-      $$invalidate(0, dsd = yield buildDsdToken(dao, dsdContract));
-      $$invalidate(1, cdsd = yield buildCdsdToken(dao, cdsdContract));
-      $$invalidate(2, dsdLp = yield buildLpToken(dsdLpContract, dsdncentivationContract));
-      $$invalidate(3, cdsdLp = yield buildLpToken(cdsdLpContract, cdsdIncentivationContract));
+      $$invalidate(0, dsd = yield buildDsdToken(dao, dsdContract, accounts[0]));
+      $$invalidate(1, cdsd = yield buildCdsdToken(dao, cdsdContract, accounts[0]));
+      $$invalidate(2, dsdLp = yield buildLpToken(dsdLpContract, dsdncentivationContract, accounts[0]));
+      $$invalidate(3, cdsdLp = yield buildLpToken(cdsdLpContract, cdsdIncentivationContract, accounts[0]));
       $$invalidate(4, isLoaded = true);
     }));
   });
